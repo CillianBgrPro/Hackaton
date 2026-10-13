@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scénario SOS TAO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Frise : six étapes horaires en colonnes, une ligne par acteur (usagère, système, proche, chauffeur, poste central), puis points de vigilance */
+:root {
+  color-scheme: light;
+  --board: #e8ebee; --card: #ffffff; --ink: #14181c; --ink-2: #48525c; --muted: #7a848e; --line: #d5dbe0; --lane: #f3f5f7;
+  --red: #ff3b30; --green: #34c759; --amber: #ff9f0a; --blue: #0a84ff; --ios-bg: #f2f2f7;
+  --alarm-1: #d70015; --tram-a: #e2121a; --accent: #6b2d7a;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--board); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+.board { width: 1800px; margin: 0 auto; padding: 40px 38px 40px; display: flex; flex-direction: column; gap: 26px; }
+
+/* En-tête */
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+.eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 54px; line-height: .98; }
+.lede { margin: 12px 0 0; max-width: 88ch; font-size: 16px; line-height: 1.5; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.chip { display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px 8px 10px; font-size: 13px; color: var(--ink-2); }
+.chip b { color: var(--ink); }
+.chip i { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 13px; color: #fff; }
+.disclaimer { flex: none; width: 340px; margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); border: 1px dashed #a9b2bb; border-radius: 10px; padding: 10px 14px; background: rgba(255,255,255,.5); }
+.disclaimer b { color: var(--ink); }
+
+/* Frise */
+.story { display: grid; grid-template-columns: 150px repeat(6, 250px); column-gap: 12px; }
+.story > * { min-width: 0; }
+.steph { padding: 0 2px 12px; display: flex; flex-direction: column; gap: 3px; }
+.steph .t { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.1; }
+.steph .t span { display: inline-grid; place-items: center; min-width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: #fff; font-family: var(--ui); font-size: 12px; font-weight: 700; }
+.steph.hot .t span { background: var(--alarm-1); }
+.steph .time { font-size: 12px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.steph p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+.lane-l { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 14px 10px 14px 4px; border-top: 1px solid var(--line); }
+.lane-l .who { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; line-height: 1.05; }
+.lane-l .ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-family: var(--ui); font-size: 13px; font-weight: 800; }
+.lane-l small { font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+.cell { display: grid; place-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.lane-sys { background: transparent; }
+.empty { width: 100%; max-width: 226px; border: 1.5px dashed #b6bfc8; border-radius: 14px; padding: 12px 14px; font-size: 12px; line-height: 1.4; color: var(--muted); text-align: center; }
+.sys { width: 100%; display: flex; align-items: flex-start; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; font-size: 11.5px; line-height: 1.38; color: var(--ink-2); }
+.sys b { color: var(--ink); }
+.sys svg { flex: none; margin-top: 1px; }
+.sys.hot { border-color: rgba(215, 0, 21, .45); background: #fff6f5; }
+
+/* iPhone miniature */
+.mp { width: 200px; height: 412px; border-radius: 36px; padding: 7px; background: #0d0d0f; box-shadow: 0 0 0 1px #3a3a40, 0 0 0 3px #c9ced3, 0 22px 36px -16px rgba(20, 30, 40, .45); flex: none; }
+.ms { position: relative; width: 100%; height: 100%; border-radius: 30px; overflow: hidden; color: #fff; font-size: 11px; }
+.mi { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 60px; height: 18px; border-radius: 12px; background: #000; z-index: 20; }
+.mst { position: absolute; top: 9px; left: 18px; right: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; z-index: 19; }
+.mst .sb { display: inline-flex; gap: 3px; align-items: center; }
+.mhome { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 70px; height: 3.5px; border-radius: 2px; background: rgba(255,255,255,.85); z-index: 30; }
+.mhome.dark { background: rgba(0,0,0,.8); }
+.app { position: absolute; inset: 0; background: var(--ios-bg); color: #111; display: flex; flex-direction: column; gap: 7px; padding: 34px 9px 16px; }
+.app .mst { color: #111; }
+.a-title { font-size: 16px; font-weight: 800; margin: 2px 2px 0; }
+.a-nav { display: grid; grid-template-columns: 1fr auto 1fr; font-size: 11.5px; align-items: center; margin: 0 2px; }
+.a-nav .lk { color: var(--blue); }
+.a-nav b { font-size: 12.5px; }
+.card { background: #fff; border-radius: 11px; padding: 8px 9px; display: flex; flex-direction: column; gap: 6px; }
+.row { display: flex; align-items: center; gap: 7px; }
+.row b { display: block; font-size: 11px; line-height: 1.25; }
+.row small { display: block; font-size: 9.5px; color: #6c6c70; line-height: 1.3; }
+.badge { flex: none; display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 5px; font-size: 12px; font-weight: 800; color: #fff; line-height: 1; }
+.tg { margin-left: auto; flex: none; width: 32px; height: 19px; border-radius: 10px; background: var(--green); position: relative; }
+.tg::after { content: ""; position: absolute; top: 2px; right: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.avs { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: #3a3a3c; }
+.av { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 9.5px; font-weight: 800; color: #fff; }
+.fine { font-size: 9px; color: #8a8a8e; }
+.sos-fab { position: absolute; right: 12px; bottom: 22px; display: flex; align-items: center; gap: 6px; }
+.sos-fab b { width: 46px; height: 46px; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 800; letter-spacing: .04em; box-shadow: 0 6px 14px -4px rgba(255, 59, 48, .7); }
+.sos-fab small { font-size: 9px; line-height: 1.3; color: #3a3a3c; text-align: right; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.tile { background: #fff; border-radius: 9px; padding: 6px 7px; min-height: 34px; display: flex; align-items: center; font-size: 9.8px; font-weight: 600; line-height: 1.2; border: 1.3px solid transparent; color: #1c1c1e; }
+.tile.on { border-color: var(--blue); background: #f0f6ff; }
+.note { display: flex; gap: 6px; align-items: flex-start; font-size: 9.5px; line-height: 1.35; color: #3a3a3c; background: #fff; border-radius: 9px; padding: 6px 8px; }
+.btn { height: 34px; border-radius: 11px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.btn.blue { background: var(--blue); color: #fff; }
+.btn.grey { background: #e3e3e8; color: #1c1c1e; }
+.mt-auto { margin-top: auto; }
+
+/* Décompte */
+.count { position: absolute; inset: 0; background: #fff; color: #111; display: flex; flex-direction: column; align-items: center; padding: 40px 12px 18px; gap: 9px; text-align: center; }
+.count .ok { font-size: 10px; font-weight: 700; color: #1f7a35; background: #e8f7ec; border-radius: 8px; padding: 4px 8px; }
+.ring { position: relative; width: 120px; height: 120px; display: grid; place-items: center; margin-top: 4px; }
+.ring svg { position: absolute; inset: 0; }
+.ring b { font-size: 50px; font-weight: 800; color: var(--alarm-1); font-variant-numeric: tabular-nums; }
+.count h4 { margin: 0; font-size: 15px; }
+.count p { margin: -4px 0 0; font-size: 10.5px; line-height: 1.4; color: #3a3a3c; }
+
+/* Alarme */
+.alarm { position: absolute; inset: 0; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 34px 10px 16px; background: radial-gradient(70% 40% at 50% 25%, #ff5b4f 0%, rgba(255, 91, 79, 0) 70%), linear-gradient(180deg, #e3131f 0%, #b3000f 100%); }
+.spk { width: 64px; height: 64px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 8px rgba(255,255,255,.2), 0 0 0 18px rgba(255,255,255,.1); margin: 12px 0 8px; }
+.al-t { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .03em; line-height: 1; }
+.al-s { font-size: 9.5px; opacity: .9; margin-top: -2px; }
+.al-list { align-self: stretch; background: rgba(0,0,0,.2); border-radius: 11px; padding: 7px 9px; display: flex; flex-direction: column; gap: 5px; }
+.al-list div { display: flex; align-items: flex-start; gap: 6px; font-size: 10px; line-height: 1.3; }
+.al-list .h { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
+.al-list b { font-weight: 700; }
+.bubble { align-self: stretch; background: #fff; color: #111; border-radius: 12px 12px 12px 4px; padding: 6px 9px; font-size: 10.5px; line-height: 1.3; }
+.bubble small { display: block; font-size: 9px; color: #6c6c70; font-weight: 700; }
+.stopbtn { margin-top: auto; align-self: stretch; height: 34px; border-radius: 12px; background: rgba(0,0,0,.34); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11.5px; font-weight: 700; }
+.alarm.compact { gap: 6px; }
+.al-head { align-self: stretch; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.18); border-radius: 12px; padding: 7px 9px; }
+.al-head b { display: block; font-size: 12px; }
+.al-head small { display: block; font-size: 9.5px; opacity: .85; }
+
+/* Fin d'alerte */
+.done { width: 48px; height: 48px; border-radius: 50%; background: var(--green); display: grid; place-items: center; margin: 6px auto 2px; }
+.center { text-align: center; }
+
+/* Écran verrouillé du proche */
+.wall2 { position: absolute; inset: 0; background: radial-gradient(90% 50% at 80% 100%, rgba(80, 170, 190, .55), rgba(80,170,190,0) 65%), linear-gradient(175deg, #0f1f2c 0%, #16324a 55%, #24506a 100%); }
+.lk-date { position: absolute; top: 40px; width: 100%; text-align: center; font-size: 11.5px; font-weight: 600; opacity: .9; }
+.lk-time { position: absolute; top: 52px; width: 100%; text-align: center; font-size: 54px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+.notif { position: absolute; left: 8px; right: 8px; top: 132px; background: rgba(245, 245, 247, .9); color: #111; border-radius: 16px; padding: 9px 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); }
+.notif .nh { display: flex; align-items: center; gap: 6px; font-size: 9.5px; color: #6c6c70; }
+.notif .nh .appic { width: 18px; height: 18px; border-radius: 5px; border: 1.2px dashed #8e8e93; display: grid; place-items: center; font-size: 6px; font-weight: 800; color: #6c6c70; }
+.notif .nh .when { margin-left: auto; }
+.notif h5 { margin: 0; font-size: 11.5px; line-height: 1.25; }
+.notif p { margin: -3px 0 0; font-size: 10.5px; line-height: 1.35; color: #2c2c2e; }
+.notif.crit { background: #fff; box-shadow: 0 0 0 2px var(--red), 0 10px 24px -6px rgba(255, 59, 48, .6); }
+.notif.crit h5 { color: var(--alarm-1); display: flex; align-items: center; gap: 5px; }
+.replies { display: flex; gap: 5px; }
+.replies span { flex: 1; height: 28px; border-radius: 9px; background: #e3e3e8; display: grid; place-items: center; font-size: 9.8px; font-weight: 700; color: #1c1c1e; text-align: center; line-height: 1.1; padding: 0 3px; }
+.replies span.r { background: var(--red); color: #fff; }
+.crit-note { position: absolute; left: 8px; right: 8px; top: 352px; font-size: 9px; color: rgba(255,255,255,.75); text-align: center; }
+.minimap { border-radius: 9px; overflow: hidden; display: block; }
+
+/* Console chauffeur */
+.console { width: 236px; border-radius: 14px; background: #1b2025; color: #e8edf0; padding: 10px 12px 12px; box-shadow: 0 0 0 3px #2c333a, 0 0 0 4px #9aa3ab, 0 16px 26px -14px rgba(0,0,0,.6); display: flex; flex-direction: column; gap: 8px; font-size: 11px; }
+.c-top { display: flex; justify-content: space-between; font-size: 9.5px; color: #93a0a8; font-weight: 600; letter-spacing: .02em; }
+.c-main { display: flex; align-items: center; gap: 11px; }
+.vy { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #3a4249; box-shadow: inset 0 0 0 2px #4a535b; }
+.vy.on { background: #ff3b30; box-shadow: 0 0 0 4px rgba(255,59,48,.25), 0 0 18px 5px rgba(255,59,48,.65); }
+.vy.ok { background: #34c759; box-shadow: 0 0 10px 2px rgba(52,199,89,.45); }
+.c-main b { display: block; font-size: 15px; letter-spacing: .03em; }
+.c-main small { display: block; font-size: 10px; color: #a9b5bc; }
+.c-btn { height: 30px; border-radius: 8px; background: #34c759; color: #062a12; font-weight: 800; display: grid; place-items: center; font-size: 13px; letter-spacing: .04em; }
+.c-opt { padding: 6px 8px; border-radius: 7px; background: #2a3138; font-size: 10px; line-height: 1.3; }
+.c-opt.sel { background: #0a84ff; color: #fff; font-weight: 700; }
+.c-foot { font-size: 9.5px; color: #8b979e; display: flex; align-items: center; gap: 5px; }
+
+/* Poste central */
+.pc { width: 244px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px #c9d0d6, 0 0 0 4px #dfe4e8, 0 16px 26px -14px rgba(20,30,40,.4); overflow: hidden; color: #1c1c1e; font-size: 10px; }
+.pc-bar { height: 19px; background: #eef1f4; display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 9px; font-weight: 600; color: #5a6570; border-bottom: 1px solid #dde2e6; }
+.pc-bar i { width: 6px; height: 6px; border-radius: 50%; background: #c7cdd2; }
+.pc-bar span { margin-left: 6px; }
+.pc-body { display: grid; grid-template-columns: 104px 1fr; min-height: 150px; }
+.pc-side { padding: 7px 8px; display: flex; flex-direction: column; gap: 5px; }
+.pc-side h6 { margin: 0; font-size: 10.5px; color: var(--alarm-1); display: flex; align-items: center; gap: 4px; }
+.pc-side .k { font-size: 9px; line-height: 1.35; color: #3a3a3c; }
+.pc-side .k b { color: #111; }
+.vid { height: 38px; border-radius: 5px; background: linear-gradient(135deg, #2b3138, #485058); color: #cfd6db; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 8.5px; font-weight: 600; }
+.pc-acts { display: flex; flex-direction: column; gap: 3px; }
+.pc-acts span { height: 17px; border-radius: 4px; background: #eef1f4; display: flex; align-items: center; padding: 0 6px; font-size: 8.8px; font-weight: 700; color: #1c1c1e; }
+.pc-acts span.go { background: var(--blue); color: #fff; }
+.feed { padding: 7px 9px; display: flex; flex-direction: column; gap: 4px; }
+.feed h6 { margin: 0 0 2px; font-size: 10.5px; }
+.fi { display: flex; gap: 6px; align-items: flex-start; padding: 5px 6px; border-radius: 6px; background: #f5f7f8; font-size: 9.3px; line-height: 1.3; }
+.fi .d { flex: none; width: 7px; height: 7px; border-radius: 50%; margin-top: 3px; }
+.fi.new { background: #f0f6ff; box-shadow: inset 0 0 0 1px #b9d6ff; }
+.fi b { display: block; font-size: 9.6px; }
+.pc-list { padding: 8px 9px; display: flex; flex-direction: column; gap: 5px; font-size: 9.6px; line-height: 1.35; }
+.pc-list div { display: flex; gap: 6px; align-items: flex-start; }
+
+/* Vigilance */
+.vig h2 { margin: 0 0 12px; font-family: var(--display); font-weight: 700; font-size: 28px; }
+.vgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.vc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 13px; line-height: 1.48; color: var(--ink-2); }
+.vc b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 3px; }
+.vc .tag { display: inline-block; margin-bottom: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 2px 7px; }
+.tag.doc { background: #eef1f4; color: var(--ink-2); }
+.tag.ios { background: #fff1e0; color: #8a4b00; }
+.tag.q { background: #efe6f3; color: var(--accent); }
+.foot { margin: 0; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+<main class="board">
+
+  <header class="head">
+    <div>
+      <p class="eyebrow">Concept · Partage de position et bouton SOS · Réseau TAO</p>
+      <h1>Une alerte, trois destinataires</h1>
+      <p class="lede">Léa rentre en tram A vers Hôpital de la Source. Un appui maintenu sur SOS fait sonner son téléphone très fort et alerte en même temps le chauffeur de la rame, le poste central TAO et ses proches. Le véhicule est identifié par le valideur, ou à défaut par le GPS.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:#5e5ce6">2–5</i><span><b>Avant le premier trajet</b> : Léa choisit ses proches de confiance (ici Maman et Sam).</span></div>
+        <div class="chip"><i style="background:var(--red)">3 s</i><span><b>Appui maintenu 3 s</b>, puis 5 s pour annuler avant l'envoi.</span></div>
+        <div class="chip"><i style="background:#1c1c1e">2</i><span><b>Deux niveaux</b> : signalement simple (proches prévenus) ou SOS (alarme et alerte prioritaire).</span></div>
+      </div>
+    </div>
+    <p class="disclaimer"><b>Maquette de travail non officielle</b>, d'après la note « TAO – Partage de position et bouton SOS » du 12 octobre 2026. Scénario, personnes et numéro de rame fictifs. Charte TAO / Keolis à confirmer.</p>
+  </header>
+
+  <section class="story" aria-label="Scénario minute par minute">
+    <!-- En-têtes d'étapes -->
+    <div></div>
+    <div class="steph"><span class="time">21:44</span><div class="t"><span>1</span>Départ</div><p>Léa valide son billet à bord et partage son trajet.</p></div>
+    <div class="steph"><span class="time">21:49</span><div class="t"><span>2</span>Malaise</div><p>Un passager insiste. Léa envoie un signalement simple.</p></div>
+    <div class="steph hot"><span class="time">21:52</span><div class="t"><span>3</span>Ça dégénère</div><p>Léa maintient SOS 3 s. Elle a 5 s pour annuler.</p></div>
+    <div class="steph hot"><span class="time">21:52 + 5 s</span><div class="t"><span>4</span>Alerte</div><p>L'alarme sonne, l'alerte part aux trois destinataires.</p></div>
+    <div class="steph hot"><span class="time">21:53</span><div class="t"><span>5</span>Réaction</div><p>Le tram s'arrête, la sûreté arrive, Sam est en route.</p></div>
+    <div class="steph"><span class="time">21:58</span><div class="t"><span>6</span>Fin d'alerte</div><p>Léa est en sécurité et coupe l'alarme avec Face ID.</p></div>
+
+    <!-- ===== Usagère ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#5e5ce6">L</span>Léa</div><small>Usagère, déclenche l'alerte depuis l'app TAO</small></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>21:44</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="a-title">Mon trajet</div>
+        <div class="card"><div class="row"><span class="badge" style="background:var(--tram-a)">A</span><div><b>Tram A → Hôpital de la Source</b><small>Billet validé à bord · rame 21</small></div></div></div>
+        <div class="card">
+          <div class="row"><div><b>Je rentre avec TAO</b><small>Arrivée prévue 22 h 14</small></div><span class="tg"></span></div>
+          <div class="avs"><span class="av" style="background:#ff9500">M</span><span class="av" style="background:#30b0c7">S</span>Partagé avec Maman et Sam</div>
+          <div class="fine">Le partage s'arrête tout seul à l'arrivée.</div>
+        </div>
+        <div class="sos-fab"><small>Appui : signaler<br>Maintenir : alerte</small><b>SOS</b></div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>21:49</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="a-nav"><span class="lk">Annuler</span><b>Signaler</b><span></span></div>
+        <div class="card"><div class="row"><span class="badge" style="background:var(--tram-a)">A</span><div><b>Tram A · rame 21</b><small>Près de Royale-Châtelet · 21 h 49</small></div></div></div>
+        <div class="tiles">
+          <div class="tile on">Propos déplacés ou insistants</div>
+          <div class="tile">Harcèlement</div>
+          <div class="tile">Menace ou agression</div>
+          <div class="tile">Sentiment d'insécurité</div>
+          <div class="tile">Malaise</div>
+          <div class="tile">Autre situation</div>
+        </div>
+        <div class="note"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.2a3.3 3.3 0 0 1 3.3 3.3v2.3l1 1.5H1.7l1-1.5V4.5A3.3 3.3 0 0 1 6 1.2zM4.8 9.6h2.4" fill="none" stroke="#0a84ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Maman et Sam seront prévenus avec votre position (signalement simple).</span></div>
+        <div class="btn blue mt-auto">Envoyer</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="count">
+        <div class="mst" style="color:#111"><span>21:52</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <span class="ok">✓ Appui maintenu 3 s</span>
+        <div class="ring">
+          <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="#ffd7d3" stroke-width="9"/><circle cx="60" cy="60" r="52" fill="none" stroke="#d70015" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.7 326.7" transform="rotate(-90 60 60)"/></svg>
+          <b>5</b>
+        </div>
+        <h4>Alerte dans 5 s</h4>
+        <p>Alarme sonore, puis alerte au chauffeur, au poste central, à Maman et à Sam.</p>
+        <div class="btn grey mt-auto" style="align-self:stretch">Annuler</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="alarm">
+        <div class="mst"><span>21:52</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="spk"><svg width="34" height="34" viewBox="0 0 50 50" aria-hidden="true"><path d="M8 20h8l13-9v28l-13-9H8z" fill="#d70015"/><path d="M35 17c3 2.2 4.6 5 4.6 8s-1.6 5.8-4.6 8M39.5 12c4.6 3.4 7 8 7 13s-2.4 9.6-7 13" fill="none" stroke="#d70015" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+        <div class="al-t">ALARME EN COURS</div>
+        <div class="al-s">Sirène et flash · même en silencieux</div>
+        <div class="al-list">
+          <div class="h">Alerte envoyée à</div>
+          <div>✓ <span><b>Chauffeur</b> de la rame 21</span></div>
+          <div>✓ <span><b>Poste central</b> TAO</span></div>
+          <div>✓ <span><b>Maman et Sam</b>, avec votre position</span></div>
+        </div>
+        <div class="stopbtn">Arrêter · Face ID</div>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="alarm compact">
+        <div class="mst"><span>21:53</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="al-head" style="margin-top:4px"><svg width="22" height="22" viewBox="0 0 50 50" aria-hidden="true"><path d="M8 20h8l13-9v28l-13-9H8z" fill="#fff"/><path d="M35 17c3 2.2 4.6 5 4.6 8s-1.6 5.8-4.6 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg><div><b>Alarme en cours · 01:05</b><small>Position partagée en continu</small></div></div>
+        <div class="al-list">
+          <div>✓ <span><b>Chauffeur</b> : alerte vue, arrêt à Tourelles-Dauphine</span></div>
+          <div>✓ <span><b>Poste central</b> : équipe de sûreté en route, 3 min</span></div>
+        </div>
+        <div class="bubble"><small>Sam</small>Je viens te chercher à l'arrêt</div>
+        <div class="bubble"><small>Maman</small>Je t'appelle</div>
+        <div class="stopbtn">Arrêter · Face ID</div>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>21:58</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="done"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="m6.5 13.4 4.3 4.3 8.7-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="center"><b style="font-size:14px">Alerte terminée</b><div class="fine" style="font-size:9.5px;margin-top:2px">Alarme arrêtée avec Face ID à 21 h 58</div></div>
+        <div class="card">
+          <b style="font-size:10.5px">Lieux sûrs près de Tourelles-Dauphine</b>
+          <div class="row"><span class="badge" style="background:#34c759;font-size:10px">+</span><div><b>Pharmacie</b><small>80 m · ouverte jusqu'à 23 h</small></div></div>
+          <div class="row"><span class="badge" style="background:#5e5ce6;font-size:10px">★</span><div><b>Commerce partenaire</b><small>150 m · ouvert</small></div></div>
+        </div>
+        <div class="note">Le partage de trajet avec Maman et Sam reste actif jusqu'à votre arrivée.</div>
+        <div class="btn grey mt-auto">Revenir au trajet</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <!-- ===== Système ===== -->
+    <div class="lane-l lane-sys"><div class="who"><span class="ic" style="background:#48525c">⚙</span>Système TAO</div><small>Relie Léa au véhicule et distribue l'alerte</small></div>
+    <div class="cell"><div class="sys"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="2.5" fill="none" stroke="#48525c" stroke-width="1.4"/><path d="M4 7h6M7 4v6" stroke="#48525c" stroke-width="1.4" stroke-linecap="round"/></svg><span><b>Le valideur de la rame 21</b> associe le véhicule à la session de Léa. Sans validation : GPS du téléphone comparé aux véhicules.</span></div></div>
+    <div class="cell"><div class="sys"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#48525c" stroke-width="1.4"/><path d="M7 4.2V7l2 1.3" fill="none" stroke="#48525c" stroke-width="1.4" stroke-linecap="round"/></svg><span><b>Signalement enregistré</b> et ajouté à la carte des signalements. Proches prévenus, niveau simple.</span></div></div>
+    <div class="cell"><div class="sys"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#48525c" stroke-width="1.4"/><path d="M5 5l4 4M9 5l-4 4" stroke="#48525c" stroke-width="1.4" stroke-linecap="round"/></svg><span><b>Rien n'est envoyé</b> pendant le décompte : un appui accidentel s'annule sans conséquence.</span></div></div>
+    <div class="cell"><div class="sys hot"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.5 13 12.5H1z" fill="none" stroke="#d70015" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 5.5v3" stroke="#d70015" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10.4" r=".8" fill="#d70015"/></svg><span><b>Envoi simultané</b> au chauffeur, au poste central et aux proches, avec la rame et la position. Sans réseau : envoi dès le retour de la connexion.</span></div></div>
+    <div class="cell"><div class="sys hot"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 12.5s4.5-4 4.5-7.2a4.5 4.5 0 0 0-9 0C2.5 8.5 7 12.5 7 12.5z" fill="none" stroke="#d70015" stroke-width="1.4"/><circle cx="7" cy="5.3" r="1.5" fill="#d70015"/></svg><span><b>Position en continu</b> vers les proches et le poste central tant que l'alerte dure.</span></div></div>
+    <div class="cell"><div class="sys"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 4h9M5.5 4V2.5h3V4M3.8 4l.7 8h5l.7-8" fill="none" stroke="#48525c" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Lien Léa–rame effacé</b> à la descente (RGPD). Le partage de trajet s'arrête à l'arrivée.</span></div></div>
+
+    <!-- ===== Proche ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#30b0c7">S</span>Sam</div><small>Proche de confiance, reçoit les alertes et peut répondre en un geste</small></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="wall2"></div>
+      <div class="mst"><span></span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+      <div class="lk-date">lundi 12 octobre</div><div class="lk-time">21:44</div>
+      <div class="notif">
+        <div class="nh"><span class="appic">TAO</span>TAO<span class="when">maintenant</span></div>
+        <h5>Léa rentre avec TAO</h5>
+        <p>Elle a pris le tram A vers Hôpital de la Source, arrivée prévue 22 h 14.</p>
+        <div class="replies"><span>Suivre son trajet</span></div>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="wall2"></div>
+      <div class="mst"><span></span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+      <div class="lk-date">lundi 12 octobre</div><div class="lk-time">21:49</div>
+      <div class="notif">
+        <div class="nh"><span class="appic">TAO</span>TAO<span class="when">maintenant</span></div>
+        <h5>Léa a signalé une situation inconfortable</h5>
+        <p>Tram A, rame 21 · près de Royale-Châtelet.</p>
+        <svg class="minimap" width="164" height="54" viewBox="0 0 164 54" aria-hidden="true"><rect width="164" height="54" fill="#e6ebe8"/><path d="M0 34 C40 28, 80 40, 164 30 L164 44 C80 52, 40 40, 0 46z" fill="#b8d2df"/><path d="M70 0 C74 18, 78 30, 84 54" fill="none" stroke="#e2121a" stroke-width="2.4"/><circle cx="76" cy="22" r="6" fill="#fff" stroke="#0a84ff" stroke-width="2.5"/></svg>
+        <div class="replies"><span>Je t'appelle</span><span>Je viens te chercher à l'arrêt</span></div>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="empty">Rien n'est envoyé à Sam pendant le décompte.</div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="wall2"></div>
+      <div class="mst"><span></span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+      <div class="lk-date">lundi 12 octobre</div><div class="lk-time">21:52</div>
+      <div class="notif crit" style="top:120px">
+        <div class="nh"><span class="appic">TAO</span>TAO · alerte critique<span class="when">maintenant</span></div>
+        <h5><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.5 13 12.5H1z" fill="#d70015"/><path d="M7 5.5v3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10.4" r=".8" fill="#fff"/></svg>SOS · Léa a besoin d'aide</h5>
+        <p>Tram A, rame 21 · entre Royale-Châtelet et Tourelles-Dauphine. Position en direct.</p>
+        <svg class="minimap" width="164" height="60" viewBox="0 0 164 60" aria-hidden="true"><rect width="164" height="60" fill="#e6ebe8"/><path d="M0 30 C40 24, 80 36, 164 26 L164 42 C80 50, 40 38, 0 44z" fill="#b8d2df"/><path d="M70 0 C74 18, 78 34, 84 60" fill="none" stroke="#e2121a" stroke-width="2.4"/><circle cx="78" cy="34" r="10" fill="#ff3b30" fill-opacity=".2"/><circle cx="78" cy="34" r="6" fill="#fff" stroke="#ff3b30" stroke-width="2.5"/></svg>
+        <div class="replies"><span class="r">J'appelle</span><span class="r">Je la rejoins</span></div>
+      </div>
+      <div class="crit-note">Sonne même en mode silencieux</div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app" style="padding-left:0;padding-right:0;padding-bottom:0;gap:0">
+        <div class="mst"><span>21:53</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="a-nav" style="margin:0 11px 6px;grid-template-columns:auto 1fr auto;gap:6px"><span class="lk">Fermer</span><b style="text-align:center">Léa en direct</b><span style="width:30px"></span></div>
+        <svg width="186" height="190" viewBox="0 0 186 190" aria-hidden="true" style="display:block"><rect width="186" height="190" fill="#e6ebe8"/><path d="M0 104 C50 92, 110 116, 186 98 L186 128 C110 146, 50 124, 0 134z" fill="#b8d2df"/><path d="M20 40 H170 M30 160 H160 M40 10 V180 M150 10 V180" stroke="#fff" stroke-width="5"/><path d="M84 0 C88 50, 92 100, 104 190" fill="none" stroke="#e2121a" stroke-width="3"/><circle cx="86" cy="60" r="4" fill="#fff" stroke="#e2121a" stroke-width="2"/><circle cx="97" cy="150" r="4" fill="#fff" stroke="#e2121a" stroke-width="2"/><text x="91" y="153" font-size="8.5" font-weight="700" fill="#1c1c1e" text-anchor="end">Tourelles-Dauphine</text><text x="92" y="63" font-size="8.5" font-weight="700" fill="#1c1c1e">Royale-Châtelet</text><circle cx="93" cy="118" r="14" fill="#ff3b30" fill-opacity=".18"/><circle cx="93" cy="118" r="7" fill="#fff" stroke="#ff3b30" stroke-width="3"/><circle cx="160" cy="170" r="6" fill="#30b0c7" stroke="#fff" stroke-width="2"/><text x="132" y="186" font-size="8" font-weight="700" fill="#1c1c1e">Vous</text></svg>
+        <div style="padding:8px 9px;display:flex;flex-direction:column;gap:6px;flex:1">
+          <div class="card"><div class="row"><span class="badge" style="background:var(--tram-a)">A</span><div><b>Vous la rejoignez à Tourelles-Dauphine</b><small>Léa y sera dans 1 min · vous dans 6 min</small></div></div></div>
+          <div class="btn blue">Appeler Léa</div>
+        </div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="wall2"></div>
+      <div class="mst"><span></span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+      <div class="lk-date">lundi 12 octobre</div><div class="lk-time">21:58</div>
+      <div class="notif">
+        <div class="nh"><span class="appic">TAO</span>TAO<span class="when">maintenant</span></div>
+        <h5>Léa a mis fin à l'alerte</h5>
+        <p>Elle est en sécurité à Tourelles-Dauphine. Le partage de trajet s'arrêtera à son arrivée.</p>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <!-- ===== Chauffeur ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#1b2025">C</span>Chauffeur</div><small>Console de conduite de la rame 21. Alerte discrète : il conduit.</small></div>
+    <div class="cell"><div class="console">
+      <div class="c-top"><span>LIGNE A · RAME 21</span><span>21:44</span></div>
+      <div class="c-main"><span class="vy"></span><div><b style="font-size:13px">Service normal</b><small>Vers Hôpital de la Source · à l'heure</small></div></div>
+    </div></div>
+    <div class="cell"><div class="empty">Un signalement simple n'est pas transmis au chauffeur.</div></div>
+    <div class="cell"><div class="empty">Rien n'arrive en cabine pendant le décompte.</div></div>
+    <div class="cell"><div class="console">
+      <div class="c-top"><span>LIGNE A · RAME 21</span><span>21:52</span></div>
+      <div class="c-main"><span class="vy on"></span><div><b>SOS PASSAGER</b><small>Zone arrière · position transmise</small></div></div>
+      <div class="c-btn">VU</div>
+      <div class="c-foot"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="1.5" width="5" height="9" rx="1.2" fill="none" stroke="#8b979e" stroke-width="1.2"/><path d="M1.5 4v4M10.5 4v4" stroke="#8b979e" stroke-width="1.2" stroke-linecap="round"/></svg>Vibration et voyant, sans signal sonore</div>
+    </div></div>
+    <div class="cell"><div class="console">
+      <div class="c-top"><span>LIGNE A · RAME 21</span><span>21:53</span></div>
+      <div class="c-main"><span class="vy on"></span><div><b style="font-size:13px">Alerte vue ✓</b><small>Poste central informé</small></div></div>
+      <div class="c-opt sel">S'arrêter à Tourelles-Dauphine et ouvrir</div>
+      <div class="c-opt">Voir la caméra intérieure</div>
+      <div class="c-opt">Laisser le poste central gérer</div>
+    </div></div>
+    <div class="cell"><div class="console">
+      <div class="c-top"><span>LIGNE A · RAME 21</span><span>21:58</span></div>
+      <div class="c-main"><span class="vy ok"></span><div><b style="font-size:13px">Alerte clôturée</b><small>Par le poste central · reprise du service</small></div></div>
+    </div></div>
+
+    <!-- ===== Poste central ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#0a84ff">P</span>Poste central</div><small>Voit le véhicule et la vidéo, prévient la sûreté ou la police</small></div>
+    <div class="cell"><div class="empty">Le lien billet–véhicule existe dans le système, mais rien ne s'affiche au poste central.</div></div>
+    <div class="cell"><div class="pc">
+      <div class="pc-bar"><i></i><i></i><i></i><span>Signalements · temps réel</span></div>
+      <div class="feed">
+        <h6>Derniers signalements</h6>
+        <div class="fi new"><span class="d" style="background:#ff9f0a"></span><div><b>21:49 · Propos déplacés</b>Tram A · rame 21 · niveau simple</div></div>
+        <div class="fi"><span class="d" style="background:#8e8e93"></span><div><b>21:31 · Réclamation</b>Bus 1 · Cap Saran</div></div>
+        <div class="fi"><span class="d" style="background:#8e8e93"></span><div><b>21:12 · Dégradation</b>Bus 6 · Gare d'Orléans</div></div>
+      </div>
+    </div></div>
+    <div class="cell"><div class="empty">Pas encore d'alerte : le décompte peut être annulé.</div></div>
+    <div class="cell"><div class="pc">
+      <div class="pc-bar"><i></i><i></i><i></i><span>Alerte SOS · 21:52</span></div>
+      <div class="pc-body">
+        <svg width="104" height="150" viewBox="0 0 104 150" aria-hidden="true" style="display:block"><rect width="104" height="150" fill="#e6ebe8"/><path d="M0 78 C30 70, 70 88, 104 74 L104 96 C70 108, 30 92, 0 100z" fill="#b8d2df"/><path d="M46 0 C50 40, 52 90, 60 150" fill="none" stroke="#e2121a" stroke-width="2.6"/><circle cx="49" cy="40" r="3" fill="#fff" stroke="#e2121a" stroke-width="1.6"/><circle cx="55" cy="118" r="3" fill="#fff" stroke="#e2121a" stroke-width="1.6"/><circle cx="52" cy="86" r="14" fill="#ff3b30" fill-opacity=".2"/><circle cx="52" cy="86" r="8.5" fill="#fff" stroke="#ff3b30" stroke-width="2.6"/><text x="52" y="89" font-size="7.5" font-weight="800" text-anchor="middle" fill="#d70015">21</text></svg>
+        <div class="pc-side">
+          <h6>● SOS · rame 21</h6>
+          <div class="k"><b>Tram A</b>, zone arrière<br>Entre Royale-Châtelet et Tourelles-Dauphine</div>
+          <div class="vid"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1.5v7l6-3.5z" fill="#cfd6db"/></svg>Caméra arrière</div>
+          <div class="pc-acts"><span class="go">Équipe de sûreté</span><span>Police (17)</span><span>Patrouille à un arrêt</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="cell"><div class="pc">
+      <div class="pc-bar"><i></i><i></i><i></i><span>Alerte SOS · rame 21 · suivi</span></div>
+      <div class="pc-list">
+        <div>✓ <span><b>Chauffeur</b> : alerte vue, arrêt à Tourelles-Dauphine</span></div>
+        <div>✓ <span><b>Équipe de sûreté</b> envoyée à Tourelles-Dauphine, arrivée 3 min</span></div>
+        <div>● <span><b>Vidéo</b> : caméra arrière en cours de visionnage</span></div>
+        <div>● <span><b>Proches</b> : Sam en route vers l'arrêt</span></div>
+      </div>
+    </div></div>
+    <div class="cell"><div class="pc">
+      <div class="pc-bar"><i></i><i></i><i></i><span>Alerte SOS · clôturée</span></div>
+      <div class="pc-list">
+        <div>✓ <span><b>Incident clôturé</b> à 21 h 58, Léa prise en charge à Tourelles-Dauphine</span></div>
+        <div>✓ <span><b>Rapport d'incident</b> créé</span></div>
+        <div>✓ <span><b>Lien usagère–véhicule</b> effacé à la descente</span></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="vig" aria-labelledby="h-vig">
+    <h2 id="h-vig">Points de vigilance</h2>
+    <div class="vgrid">
+      <div class="vc"><span class="tag doc">Note</span><b>Faux déclenchements</b>Appui maintenu 3 s, puis 5 s pour annuler avant l'envoi (étape 3). Les déclenchements abusifs répétés sont suivis, sans décourager les vrais appels.</div>
+      <div class="vc"><span class="tag ios">iPhone</span><b>Déclencher sans regarder l'écran</b>Le triple appui sur le bouton latéral est réservé par iOS. Équivalents possibles : « Toucher le dos » (double ou triple tape au dos du téléphone) ou le bouton Action, via les Raccourcis.</div>
+      <div class="vc"><span class="tag ios">iPhone</span><b>Sonneries prioritaires</b>L'alarme de Léa peut sonner en mode silencieux, mais sans garantie de volume maximal. L'alerte de Sam qui sonne en silencieux demande l'autorisation Apple « alertes critiques », accordée au cas par cas.</div>
+      <div class="vc"><span class="tag q">Choix retenu</span><b>Alarme sonore</b>La note recommandait une alerte discrète pour ne pas exposer l'usagère. Ici, le téléphone sonne pour faire fuir l'agresseur. La console du chauffeur reste silencieuse pour ne pas le distraire.</div>
+      <div class="vc"><span class="tag doc">Note</span><b>Pas de réseau</b>En tunnel ou en zone blanche, l'alerte part dès le retour de la connexion, avec le dernier véhicule connu. L'alarme, elle, sonne sans réseau.</div>
+      <div class="vc"><span class="tag doc">Note</span><b>Données personnelles</b>Consentement explicite, partage limité au trajet, lien usagère–véhicule effacé à la descente, pas d'historique conservé au-delà du nécessaire.</div>
+      <div class="vc"><span class="tag q">À trancher</span><b>Le proche a-t-il l'app TAO ?</b>Sinon, prévoir un SMS avec un lien de suivi. Les réponses en un geste et la sonnerie prioritaire ne fonctionnent qu'avec l'app.</div>
+      <div class="vc"><span class="tag q">À trancher</span><b>Zone dans le véhicule</b>« Zone arrière » suppose de savoir sur quel valideur Léa a validé. Avec le seul GPS, seul le véhicule est connu.</div>
+    </div>
+  </section>
+
+  <p class="foot">Maquette de travail : interfaces, horaires, numéro de rame, lieux sûrs et personnes sont fictifs. Arrêts et couleur de la ligne A issus du GTFS TAO.</p>
+</main>
+</body>
+</html>

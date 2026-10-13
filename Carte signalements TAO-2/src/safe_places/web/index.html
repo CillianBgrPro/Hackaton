@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Safe Places potentielles TAO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Overpass:wght@400;500;600;700;800&display=swap">
+<!-- build:vendor-css -->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-text">
+      <p class="eyebrow">Label TAO Safe Place · Cartographie des lieux candidats</p>
+      <h1>Où recruter les Safe Places</h1>
+      <p class="lede" id="lede"></p>
+    </div>
+    <div class="mast-meta">
+      <span><strong>Source</strong> · OpenStreetMap, extrait du 11 octobre 2026</span>
+      <span>Arrêts : GTFS TAO · Priorités : signalements et questionnaire</span>
+    </div>
+  </header>
+
+  <section class="filters" aria-label="Filtres">
+    <div class="f-row">
+      <div class="f-group" id="g-cls"><span class="f-label">Horaires</span></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group" id="g-cat"><span class="f-label">Type</span></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><span class="f-label">Distance à l'arrêt</span><div class="seg" id="g-dist"><button type="button" data-d="100" aria-pressed="false">100 m</button><button type="button" data-d="150" aria-pressed="false">150 m</button><button type="button" data-d="200" aria-pressed="true">200 m</button></div></div>
+      <label class="tog"><input type="checkbox" id="t-tram"> Près d'un arrêt de tram</label>
+      <div class="f-group"><label class="f-label" for="sel-stop">Aller à un arrêt</label><select class="select" id="sel-stop"></select></div>
+      <button class="btn-ghost" type="button" id="reset">Réinitialiser</button>
+      <span class="f-count" id="f-count"></span>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Chiffres clés"></section>
+
+  <div class="main">
+    <section class="card" aria-labelledby="h-map">
+      <div class="card-head">
+        <div><h2 id="h-map">Carte des lieux candidats</h2><p class="note">Couleur : heure de fermeture habituelle en semaine. Anneau autour d'un arrêt prioritaire : vert s'il a un lieu ouvert le soir, rouge sinon.</p></div>
+        <div class="f-group"><label class="tog"><input type="checkbox" id="t-bus"> Lignes de bus</label><label class="tog"><input type="checkbox" id="t-pol"> Commissariats</label></div>
+      </div>
+      <div class="map-wrap"><div id="map" role="region" aria-label="Carte des Safe Places potentielles"></div><div class="legend" id="legend"></div></div>
+    </section>
+    <section class="card" aria-labelledby="h-prio">
+      <div class="card-head"><div><h2 id="h-prio">Priorités de recrutement</h2><p class="note">Arrêts signalés (sûreté, incivilités), cités dans le questionnaire ou dans un pôle pilote. Cliquez pour zoomer.</p></div></div>
+      <div class="card-body" style="padding-top:0">
+        <div style="overflow-x:auto"><table class="prio"><thead><tr><th>Arrêt</th><th class="n">Sig.*</th><th class="n">Cité</th><th class="n">Soir</th><th class="n">Jour</th><th>Couverture le soir</th></tr></thead><tbody id="prio"></tbody></table></div>
+        <p class="panel-note">* Signalements sûreté ou incivilités à moins de 250 m (12 mois), entre parenthèses ceux du soir. « Soir » et « Jour » : lieux candidats à moins de la distance choisie, ouverts après 21 h ou à 15 h en semaine. Les lieux sans horaires ne sont comptés dans aucune des deux colonnes.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card" aria-labelledby="h-cat">
+      <div class="card-head"><div><h2 id="h-cat">Par type de lieu</h2><p class="note">Lieux candidats selon les filtres.</p></div></div>
+      <div class="card-body"><div class="legend-row" id="cat-legend"></div><div class="blist" id="c-cat"></div></div>
+    </section>
+    <section class="card" aria-labelledby="h-list">
+      <div class="card-head"><div><h2 id="h-list">Liste à démarcher</h2><p class="note" id="list-note"></p></div></div>
+      <div class="table-wrap"><table class="list"><thead><tr><th>Lieu</th><th>Type</th><th>Horaires (semaine)</th><th>Arrêt</th><th>Adresse</th><th>Fiche</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-method">
+    <div class="card-head"><h2 id="h-method">Méthode et limites</h2></div>
+    <div class="card-body method" id="method"></div>
+  </section>
+</div>
+
+<script type="application/json" id="d">/*__DATA__*/</script>
+<script type="application/json" id="b">/*__BASEMAP__*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

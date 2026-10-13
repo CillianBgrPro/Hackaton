@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TAO Safe Place</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+/* Planche : frise en sept étapes (Léa, système, commerçant), kit du label, plan du pilote d'après les signalements, points à trancher */
+:root {
+  color-scheme: light;
+  --board: #e8ebee; --card: #ffffff; --ink: #14181c; --ink-2: #48525c; --muted: #7a848e; --line: #d5dbe0;
+  --red: #ff3b30; --green: #34c759; --blue: #0a84ff; --ios-bg: #f2f2f7;
+  --safe: #138a52; --safe-wash: #e6f5ed; --tram-a: #e2121a; --tram-b: #762a80; --accent: #6b2d7a;
+  --sticker: #13161a;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--board); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+.board { width: 1940px; margin: 0 auto; padding: 40px 38px; display: flex; flex-direction: column; gap: 30px; }
+h2.sec { margin: 0 0 12px; font-family: var(--display); font-weight: 700; font-size: 30px; }
+h2.sec small { font-family: var(--ui); font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 10px; }
+
+/* En-tête */
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+.eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--safe); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 54px; line-height: .98; }
+.lede { margin: 12px 0 0; max-width: 92ch; font-size: 16px; line-height: 1.5; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.chip { display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px 8px 10px; font-size: 13px; color: var(--ink-2); }
+.chip b { color: var(--ink); }
+.chip i { flex: none; min-width: 26px; height: 26px; padding: 0 5px; border-radius: 8px; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 12px; color: #fff; }
+.chip.off { border-style: dashed; }
+.disclaimer { flex: none; width: 350px; margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); border: 1px dashed #a9b2bb; border-radius: 10px; padding: 10px 14px; background: rgba(255,255,255,.5); }
+.disclaimer b { color: var(--ink); }
+
+/* Frise */
+.story { display: grid; grid-template-columns: 150px repeat(7, 232px); column-gap: 12px; }
+.story > * { min-width: 0; }
+.steph { padding: 0 2px 12px; display: flex; flex-direction: column; gap: 3px; }
+.steph .t { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; line-height: 1.1; }
+.steph .t span { display: inline-grid; place-items: center; min-width: 24px; height: 24px; border-radius: 12px; background: var(--ink); color: #fff; font-family: var(--ui); font-size: 12px; font-weight: 700; }
+.steph.alt .t span { background: var(--safe); }
+.steph .time { font-size: 12px; font-weight: 700; color: var(--safe); font-variant-numeric: tabular-nums; }
+.steph .trig { align-self: flex-start; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: #efe6f3; border-radius: 6px; padding: 2px 7px; margin-bottom: 2px; }
+.steph p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+.sep { border-left: 2px dashed #b6bfc8; }
+.lane-l { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 14px 10px 14px 4px; border-top: 1px solid var(--line); }
+.lane-l .who { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; line-height: 1.05; }
+.lane-l .ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-family: var(--ui); font-size: 13px; font-weight: 800; }
+.lane-l small { font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+.cell { display: grid; place-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.empty { width: 100%; max-width: 214px; border: 1.5px dashed #b6bfc8; border-radius: 14px; padding: 12px 14px; font-size: 12px; line-height: 1.4; color: var(--muted); text-align: center; }
+.sys { width: 100%; display: flex; flex-direction: column; gap: 7px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; font-size: 11.5px; line-height: 1.38; color: var(--ink-2); }
+.sys b { color: var(--ink); }
+.sys.safe { border-color: rgba(19, 138, 82, .4); background: #f4fbf7; }
+.mini-notif { background: #f2f2f7; border-radius: 11px; padding: 7px 9px; font-size: 10.5px; line-height: 1.35; color: #1c1c1e; }
+.mini-notif .nh { display: flex; justify-content: space-between; font-size: 9px; color: #6c6c70; margin-bottom: 2px; }
+.mini-notif b { display: block; font-size: 11px; }
+
+/* iPhone miniature */
+.mp { width: 200px; height: 412px; border-radius: 36px; padding: 7px; background: #0d0d0f; box-shadow: 0 0 0 1px #3a3a40, 0 0 0 3px #c9ced3, 0 22px 36px -16px rgba(20, 30, 40, .45); flex: none; }
+.ms { position: relative; width: 100%; height: 100%; border-radius: 30px; overflow: hidden; color: #fff; font-size: 11px; }
+.mi { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 60px; height: 18px; border-radius: 12px; background: #000; z-index: 20; }
+.mst { position: absolute; top: 9px; left: 18px; right: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; z-index: 19; }
+.mst .sb { display: inline-flex; gap: 3px; align-items: center; }
+.mhome { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 70px; height: 3.5px; border-radius: 2px; background: rgba(255,255,255,.85); z-index: 30; }
+.mhome.dark { background: rgba(0,0,0,.8); }
+.app { position: absolute; inset: 0; background: var(--ios-bg); color: #111; display: flex; flex-direction: column; gap: 7px; padding: 34px 9px 16px; }
+.app.flush { padding-left: 0; padding-right: 0; gap: 0; }
+.app .mst { color: #111; }
+.a-nav { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; font-size: 11.5px; align-items: center; margin: 0 2px; }
+.a-nav .lk { color: var(--blue); }
+.a-nav b { font-size: 12.5px; text-align: center; }
+.card { background: #fff; border-radius: 11px; padding: 8px 9px; display: flex; flex-direction: column; gap: 6px; }
+.row { display: flex; align-items: center; gap: 7px; }
+.row b { display: block; font-size: 11px; line-height: 1.25; }
+.row small { display: block; font-size: 9.5px; color: #6c6c70; line-height: 1.3; }
+.badge { flex: none; display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 5px; font-size: 12px; font-weight: 800; color: #fff; line-height: 1; }
+.sp-ic { flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--safe); display: grid; place-items: center; }
+.btn { height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; }
+.btn.safe { background: var(--safe); color: #fff; }
+.btn.blue { background: var(--blue); color: #fff; }
+.btn.grey { background: #e3e3e8; color: #1c1c1e; }
+.mt-auto { margin-top: auto; }
+.fine { font-size: 9px; color: #8a8a8e; line-height: 1.35; }
+.k-head { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #1f7a35; background: #e8f7ec; border-radius: 8px; padding: 5px 8px; }
+.big-ok { width: 54px; height: 54px; border-radius: 50%; background: var(--safe); display: grid; place-items: center; margin: 8px auto 0; box-shadow: 0 0 0 8px var(--safe-wash); }
+.center { text-align: center; }
+.tg { margin-left: auto; flex: none; width: 30px; height: 18px; border-radius: 9px; background: var(--green); position: relative; }
+.tg::after { content: ""; position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.eta { display: flex; align-items: baseline; gap: 5px; }
+.eta b { font-size: 22px; font-weight: 800; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.eta small { font-size: 10px; color: #6c6c70; }
+.thumbs { display: flex; gap: 6px; }
+.thumbs span { flex: 1; height: 30px; border-radius: 9px; background: #fff; border: 1.3px solid #d1d1d6; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; color: #1c1c1e; }
+.thumbs span.on { border-color: var(--safe); background: var(--safe-wash); color: var(--safe); }
+
+/* Écran verrouillé */
+.wall { position: absolute; inset: 0; background: radial-gradient(120% 60% at 20% 105%, rgba(255, 140, 90, .7) 0%, rgba(255, 140, 90, 0) 60%), linear-gradient(175deg, #101a33 0%, #23264d 45%, #4a3463 75%, #7d4560 100%); }
+.lk-date { position: absolute; top: 40px; width: 100%; text-align: center; font-size: 11.5px; font-weight: 600; opacity: .9; }
+.lk-time { position: absolute; top: 52px; width: 100%; text-align: center; font-size: 54px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+.notif { position: absolute; left: 8px; right: 8px; background: rgba(245, 245, 247, .92); color: #111; border-radius: 16px; padding: 9px 10px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); }
+.notif .nh { display: flex; align-items: center; gap: 6px; font-size: 9.5px; color: #6c6c70; }
+.notif .nh .appic { width: 18px; height: 18px; border-radius: 5px; border: 1.2px dashed #8e8e93; display: grid; place-items: center; font-size: 6px; font-weight: 800; color: #6c6c70; }
+.notif .nh .when { margin-left: auto; }
+.notif h5 { margin: 0; font-size: 11.5px; line-height: 1.25; }
+.notif p { margin: -3px 0 0; font-size: 10.5px; line-height: 1.35; color: #2c2c2e; }
+.acts { display: flex; gap: 5px; }
+.acts span { flex: 1; height: 28px; border-radius: 9px; background: #e3e3e8; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: #1c1c1e; }
+.acts span.safe { background: var(--safe); color: #fff; }
+.la { position: absolute; left: 8px; right: 8px; bottom: 18px; border-radius: 18px; padding: 9px 10px; background: rgba(18, 18, 24, .78); display: flex; flex-direction: column; gap: 5px; }
+.la .t1 { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; }
+.la .t1 .r { margin-left: auto; color: rgba(255,255,255,.7); }
+.la .t2 { display: flex; align-items: center; justify-content: space-between; }
+.la .t2 b { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.la .sos { width: 46px; height: 34px; border-radius: 11px; background: var(--red); display: grid; place-items: center; font-size: 11px; font-weight: 800; }
+.la .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.16); overflow: hidden; }
+.la .bar i { display: block; height: 100%; width: 60%; background: var(--green); }
+.logo-ph { flex: none; width: 18px; height: 18px; border-radius: 5px; border: 1.2px dashed rgba(255,255,255,.6); display: grid; place-items: center; font-size: 6px; font-weight: 800; color: rgba(255,255,255,.8); }
+
+/* Scènes commerçant */
+.scene { width: 214px; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 26px -16px rgba(20,30,40,.45); background: #fff; }
+.scene svg { display: block; }
+.scene .cap { padding: 8px 10px 10px; font-size: 11px; line-height: 1.4; color: var(--ink-2); }
+.scene .cap b { color: var(--ink); }
+.bubble { position: relative; background: #fff; border-radius: 14px 14px 14px 4px; padding: 8px 10px; font-size: 11.5px; line-height: 1.35; color: #1c1c1e; box-shadow: 0 6px 16px -8px rgba(0,0,0,.35); }
+.bubble small { display: block; font-size: 9.5px; font-weight: 700; color: var(--safe); margin-bottom: 1px; }
+.memo { width: 214px; background: #fffdf3; border: 1px solid #ece3c2; border-radius: 12px; padding: 10px 12px; font-size: 11px; line-height: 1.38; color: #3a3324; box-shadow: 0 14px 22px -16px rgba(60,50,20,.45); display: flex; flex-direction: column; gap: 5px; }
+.memo h6 { margin: 0 0 2px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a6d12; }
+.memo div { display: flex; gap: 6px; align-items: flex-start; }
+.memo .y { color: var(--safe); font-weight: 800; }
+.memo .n { color: #c4291f; font-weight: 800; }
+.memo .sep2 { border-top: 1px dashed #e0d5ad; margin: 2px 0; }
+
+/* Kit du label */
+.kit { display: grid; grid-template-columns: 300px 300px 330px 1fr; gap: 18px; align-items: stretch; }
+.kcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.kcard h3 { margin: 0; font-size: 15px; }
+.kcard .sub { margin: -8px 0 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+.stage { border-radius: 10px; display: grid; place-items: center; padding: 18px 0; }
+.stage.day { background: linear-gradient(180deg, #dfe6ea, #cdd6db); }
+.stage.night { background: radial-gradient(80% 60% at 50% 40%, #2a3340, #0d1117); }
+.sticker { width: 210px; border-radius: 18px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.sticker.dayv { background: #fff; color: var(--sticker); box-shadow: 0 0 0 4px var(--sticker) inset, 0 12px 24px -12px rgba(0,0,0,.35); }
+.sticker.nightv { background: var(--sticker); color: #fff; box-shadow: 0 0 0 4px #e9eef2 inset, 0 0 0 1px rgba(255,255,255,.3), 0 0 26px 2px rgba(220, 235, 255, .35); }
+.st-logo { align-self: center; width: 54px; height: 30px; border-radius: 7px; border: 1.6px dashed currentColor; display: grid; place-items: center; font-size: 10px; font-weight: 800; opacity: .75; }
+.st-title { font-family: var(--display); font-weight: 800; font-size: 46px; line-height: .86; letter-spacing: .01em; }
+.st-sub { font-size: 11.5px; line-height: 1.35; opacity: .85; }
+.st-hours { font-size: 11px; font-weight: 700; border-top: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; padding: 5px 0; }
+.st-qr { display: flex; align-items: center; gap: 10px; text-align: left; font-size: 10px; line-height: 1.35; }
+.st-qr canvas, .st-qr svg { flex: none; border-radius: 4px; background: #fff; padding: 4px; }
+.tent { width: 250px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px #d5dbe0, 0 14px 26px -14px rgba(20,30,40,.4); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; color: #14181c; }
+.tent .tl { display: flex; align-items: center; gap: 8px; }
+.tent .tl b { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1; }
+.tent p { margin: 0; font-size: 11.5px; line-height: 1.4; color: #333; }
+.tent ul { margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.45; color: #333; }
+.tent .staff { font-size: 10px; color: #48525c; border-top: 1px dashed #c9d0d6; padding-top: 6px; }
+.charter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.charter h4 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.charter ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+.charter li { display: flex; gap: 7px; }
+.charter li::before { content: "•"; color: var(--muted); }
+.types { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.trow { display: grid; grid-template-columns: 200px 1fr; gap: 12px; align-items: center; font-size: 12px; }
+.trow b { display: block; font-size: 12.5px; color: var(--ink); }
+.trow small { color: var(--ink-2); }
+.hours { position: relative; height: 16px; border-radius: 4px; background: #eef1f4; }
+.hours i { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: var(--safe); opacity: .85; }
+.hours-axis { display: grid; grid-template-columns: 200px 1fr; gap: 12px; font-size: 10.5px; color: var(--muted); }
+.hours-axis div { display: flex; justify-content: space-between; }
+
+/* Pilote */
+.pilot { display: grid; grid-template-columns: 1fr 1fr 420px; gap: 18px; }
+.pcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.pcard h3 { margin: 0 0 2px; display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.pcard .sub { margin: 0 0 12px; font-size: 12.5px; color: var(--ink-2); }
+.strip { display: flex; flex-direction: column; }
+.srow { display: grid; grid-template-columns: 26px 176px 1fr 42px 40px; align-items: center; height: 19px; font-size: 11.5px; }
+.srow .cq { justify-self: end; font-size: 10.5px; font-weight: 800; color: #fff; background: var(--accent); border-radius: 9px; padding: 1px 6px; }
+.pole { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--safe); padding: 4px 0 2px 26px; }
+.srow .lnc { position: relative; height: 100%; }
+.srow .lnc::before { content: ""; position: absolute; left: 11px; top: 0; bottom: 0; width: 4px; background: var(--lc); }
+.srow:first-child .lnc::before { top: 50%; }
+.srow:last-child .lnc::before { bottom: 50%; }
+.srow .lnc::after { content: ""; position: absolute; left: 8px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: #fff; border: 2px solid var(--lc); box-sizing: border-box; }
+.srow .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); padding-right: 8px; }
+.srow.hi .nm { color: var(--ink); font-weight: 700; }
+.srow .br { display: flex; gap: 2px; height: 10px; align-items: center; }
+.srow .br i { display: block; height: 10px; }
+.srow .br i:last-child { border-radius: 0 3px 3px 0; }
+.srow .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
+.srow .v small { font-weight: 500; color: var(--muted); }
+.srow.pseg { background: linear-gradient(90deg, rgba(19,138,82,.10), rgba(19,138,82,.04)); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11.5px; color: var(--ink-2); margin-bottom: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+.reco { display: flex; flex-direction: column; gap: 14px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.tile .v { font-size: 32px; font-weight: 700; letter-spacing: -.5px; line-height: 1.05; }
+.tile .l { font-size: 12.5px; color: var(--ink-2); line-height: 1.4; margin-top: 3px; }
+.tile.go { border-color: rgba(19,138,82,.45); background: #f4fbf7; }
+.tile h4 { margin: 0 0 4px; font-size: 14px; }
+.tile p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+
+/* Questions */
+.qgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.qc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 13px; line-height: 1.48; color: var(--ink-2); }
+.qc b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 3px; }
+.qc .tag { display: inline-block; margin-bottom: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 2px 7px; }
+.tag.q { background: #efe6f3; color: var(--accent); }
+.tag.doc { background: #eef1f4; color: var(--ink-2); }
+.voice { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.foot { margin: 0; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+<main class="board">
+
+  <header class="head">
+    <div>
+      <p class="eyebrow">Concept · Label TAO Safe Place · Suite du scénario de Léa</p>
+      <h1>Un lieu sûr à deux minutes de l'arrêt</h1>
+      <p class="lede">Des commerces et lieux partenaires, repérables à leur sticker, où chacun peut attendre son bus ou son tram en sécurité, sans rien acheter ni se justifier. Après son alerte à Tourelles-Dauphine, Léa est guidée vers la Safe Place ouverte la plus proche, prévient ses proches en scannant le sticker et ressort au bon moment. Les emplacements du pilote croisent les signalements et le questionnaire mené auprès des usagères.</p>
+      <div class="chips">
+        <div class="chip"><i style="background:var(--safe)">1</i><span><b>Après un SOS</b> : l'app propose la Safe Place ouverte la plus proche.</span></div>
+        <div class="chip"><i style="background:var(--safe)">2</i><span><b>En prévention le soir</b>, si l'attente à l'arrêt est longue.</span></div>
+        <div class="chip"><i style="background:var(--safe)">3</i><span><b>Sur demande</b> : carte des lieux ouverts, dans l'app ou via le sticker.</span></div>
+        <div class="chip off"><i style="background:#a9b2bb">?</i><span><b>Après un signalement simple</b> : prévu par la note, non retenu ici.</span></div>
+      </div>
+    </div>
+    <p class="disclaimer"><b>Maquette de travail non officielle</b>, d'après la note « Label TAO Safe Place » du 12 octobre 2026. Données : signalements nettoyés et questionnaire (51 réponses du 12 octobre 2026). Lieux partenaires, personnes et horaires fictifs ; aucun commerce réel n'est représenté. Logo et couleurs du réseau à appliquer.</p>
+  </header>
+
+  <section class="story" aria-label="Scénario Safe Place">
+    <div></div>
+    <div class="steph"><span class="time">21:58</span><span class="trig">Après un SOS</span><div class="t"><span>1</span>Se mettre à l'abri</div><p>L'alerte est close. L'app propose la Safe Place ouverte la plus proche.</p></div>
+    <div class="steph"><span class="time">22:00</span><div class="t"><span>2</span>Repérer</div><p>Deux minutes à pied. Le sticker se voit de loin, même de nuit.</p></div>
+    <div class="steph"><span class="time">22:01</span><div class="t"><span>3</span>Entrer, scanner</div><p>Léa scanne le sticker : Maman et Sam savent qu'elle est à l'abri.</p></div>
+    <div class="steph"><span class="time">22:02</span><div class="t"><span>4</span>Attendre</div><p>Le pharmacien l'installe. L'app suit Sam et le prochain tram.</p></div>
+    <div class="steph"><span class="time">22:06</span><div class="t"><span>5</span>Repartir</div><p>Sam est devant la porte. Léa note l'accueil en un geste.</p></div>
+    <div class="steph alt sep" style="padding-left:12px;margin-left:-12px"><span class="time">Un autre soir · 23:10</span><span class="trig">En prévention</span><div class="t"><span>6</span>Attente longue</div><p>Retour de la fac à L'Indien, 18 min d'attente : l'app suggère d'attendre au chaud.</p></div>
+    <div class="steph alt"><span class="time">À tout moment</span><span class="trig">Sur demande</span><div class="t"><span>7</span>Carte des Safe Places</div><p>Seuls les lieux ouverts à l'instant s'affichent.</p></div>
+
+    <!-- ===== Léa ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#5e5ce6">L</span>Léa</div><small>Usagère, app TAO</small></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>21:58</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="k-head">✓ Alerte terminée · Tourelles-Dauphine</div>
+        <b style="font-size:14px;margin:2px 2px 0">Mettez-vous à l'abri</b>
+        <svg width="166" height="118" viewBox="0 0 166 118" aria-hidden="true" style="border-radius:10px;display:block"><rect width="166" height="118" fill="#e6ebe8"/><path d="M0 18 C50 10, 110 26, 166 14 L166 34 C110 46, 50 30, 0 38z" fill="#b8d2df"/><path d="M10 70 H156 M22 100 H150 M44 44 V118 M128 44 V118" stroke="#fff" stroke-width="6"/><path d="M80 0 C82 40, 84 80, 88 118" fill="none" stroke="#e2121a" stroke-width="3"/><circle cx="83" cy="62" r="5" fill="#fff" stroke="#e2121a" stroke-width="2.4"/><path d="M86 66 C96 72, 108 74, 118 86" fill="none" stroke="#138a52" stroke-width="2.6" stroke-dasharray="3 3" stroke-linecap="round"/><g transform="translate(118 86)"><path d="M0-14 C7-14 10-9 10-5 C10 2 0 10 0 10 C0 10-10 2-10-5 C-10-9-7-14 0-14z" fill="#138a52"/><path d="M-4-5 l3 3 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g><text x="92" y="58" font-size="8" font-weight="700" fill="#1c1c1e">Vous</text></svg>
+        <div class="card">
+          <div class="row"><span class="sp-ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Pharmacie partenaire</b><small>2 min à pied · ouverte jusqu'à 23 h</small></div></div>
+          <div class="fine">Entrée libre, sans achat ni question.</div>
+        </div>
+        <div class="btn safe">Y aller</div>
+        <div class="fine center">2 autres Safe Places ouvertes à moins de 5 min</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app flush">
+        <div class="mst"><span>22:00</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <svg width="186" height="214" viewBox="0 0 186 214" aria-hidden="true" style="display:block"><rect width="186" height="214" fill="#e6ebe8"/><path d="M14 120 H172 M24 176 H164 M50 20 V214 M140 20 V214" stroke="#fff" stroke-width="7"/><path d="M92 0 C94 60, 96 140, 100 214" fill="none" stroke="#e2121a" stroke-width="3"/><circle cx="95" cy="104" r="5" fill="#fff" stroke="#e2121a" stroke-width="2.4"/><path d="M98 108 C112 116, 126 122, 134 150" fill="none" stroke="#138a52" stroke-width="3" stroke-dasharray="4 3" stroke-linecap="round"/><circle cx="131" cy="140" r="9" fill="#0a84ff" fill-opacity=".2"/><circle cx="131" cy="140" r="5" fill="#0a84ff" stroke="#fff" stroke-width="2"/><g transform="translate(140 160)"><path d="M0-15 C7-15 11-10 11-5 C11 2 0 11 0 11 C0 11-11 2-11-5 C-11-10-7-15 0-15z" fill="#138a52"/><path d="M-4.5-5.5 l3 3 5.5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+        <div style="padding:9px;display:flex;flex-direction:column;gap:7px;flex:1">
+          <div class="card"><b style="font-size:12px">Vous êtes arrivée</b><div class="row"><span style="flex:none;width:36px;height:42px;border-radius:5px;background:#13161a;color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:9px;line-height:.9;text-align:center;box-shadow:inset 0 0 0 1.5px #e9eef2">SAFE<br>PLACE</span><small style="font-size:10px;color:#3a3a3c">Repérez ce sticker sur la vitrine, près de la porte.</small></div></div>
+          <div class="btn safe mt-auto">Scanner le sticker en entrant</div>
+        </div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>22:01</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="big-ok"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><path d="m6.5 13.4 4.3 4.3 8.7-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="center" style="margin-top:6px"><b style="font-size:15px">Vous êtes à l'abri</b><div style="font-size:10.5px;color:#3a3a3c;margin-top:2px">Safe Place · Pharmacie partenaire</div></div>
+        <div class="card">
+          <div class="row"><span style="display:flex"><span style="width:20px;height:20px;border-radius:50%;background:#ff9500;color:#fff;display:grid;place-items:center;font-size:9.5px;font-weight:800">M</span><span style="width:20px;height:20px;border-radius:50%;background:#30b0c7;color:#fff;display:grid;place-items:center;font-size:9.5px;font-weight:800;margin-left:-5px;box-shadow:0 0 0 2px #fff">S</span></span><div><b>Maman et Sam prévenus</b><small>Ils voient où vous êtes</small></div></div>
+        </div>
+        <div class="card"><div class="fine" style="font-size:10px;color:#3a3a3c">Restez le temps qu'il faut, sans rien acheter. Au comptoir, on peut appeler un proche, un taxi ou les secours, et recharger votre téléphone.</div></div>
+        <div class="btn grey mt-auto">Voir les horaires de passage</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>22:02</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="a-nav"><span></span><b>À l'abri depuis 1 min</b><span></span></div>
+        <div class="card">
+          <div class="row"><span style="width:26px;height:26px;border-radius:50%;background:#30b0c7;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;flex:none">S</span><div><b>Sam arrive</b><small>Il vient à la Safe Place</small></div><span class="eta" style="margin-left:auto"><b>4</b><small>min</small></span></div>
+        </div>
+        <div class="card">
+          <div class="row"><span class="badge" style="background:var(--tram-a)">A</span><div><b>Prochain tram à Tourelles-Dauphine</b><small>22 h 09 · arrêt à 2 min à pied</small></div></div>
+          <div class="row" style="justify-content:space-between"><span class="eta"><b>7</b><small>min</small></span><small style="font-size:10px;color:#138a52;font-weight:700">Sortez à 22 h 06</small></div>
+          <div class="row"><small style="font-size:10px;color:#1c1c1e">Me prévenir quand sortir</small><span class="tg"></span></div>
+        </div>
+        <div class="fine center mt-auto">Le partage de position reste actif.</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app">
+        <div class="mst"><span>22:06</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="card" style="margin-top:4px"><div class="row"><span style="width:26px;height:26px;border-radius:50%;background:#30b0c7;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;flex:none">S</span><div><b>Sam est devant la Safe Place</b><small>Vous pouvez sortir</small></div></div></div>
+        <div class="card"><div class="row"><span class="sp-ic" style="background:#8e8e93"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Partage de position terminé</b><small>Maman et Sam sont prévenus</small></div></div></div>
+        <div class="card">
+          <b style="font-size:11.5px">Comment s'est passé l'accueil ?</b>
+          <div class="thumbs"><span class="on">👍 Bien</span><span>👎 Problème</span></div>
+          <div class="fine">Votre avis aide TAO à suivre la qualité du label. Il reste anonyme pour le commerçant.</div>
+        </div>
+        <div class="btn grey mt-auto">Fermer</div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <div class="cell sep"><div class="mp"><div class="ms">
+      <div class="wall"></div>
+      <div class="mst"><span></span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+      <div class="lk-date">jeudi 15 octobre</div><div class="lk-time">23:10</div>
+      <div class="notif" style="top:116px">
+        <div class="nh"><span class="appic">TAO</span>TAO<span class="when">maintenant</span></div>
+        <h5>Prochain tram dans 18 min à L'Indien</h5>
+        <p>Attendez au chaud : Hôtel partenaire, 2 min à pied, accueil toute la nuit.</p>
+        <div class="acts"><span class="safe">Y aller</span><span>Rester à l'arrêt</span></div>
+      </div>
+      <div class="la">
+        <div class="t1"><span class="logo-ph">TAO</span>Ticket validé<span class="r"><span class="badge" style="background:var(--tram-a);min-width:15px;height:15px;font-size:9.5px">A</span></span></div>
+        <div class="t2"><b>52:40</b><span class="sos">SOS</span></div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="mi"></div><div class="mhome"></div>
+    </div></div></div>
+
+    <div class="cell"><div class="mp"><div class="ms">
+      <div class="app flush">
+        <div class="mst"><span>14:20</span><span class="sb"><svg width="13" height="8" viewBox="0 0 17 11" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor"/></svg><svg width="19" height="9" viewBox="0 0 25 12" aria-hidden="true"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><rect x="22.5" y="4" width="1.8" height="4" rx=".9" fill="currentColor" fill-opacity=".5"/></svg></span></div>
+        <div class="a-nav" style="margin:0 10px 6px"><span class="lk">Fermer</span><b>Safe Places</b><span style="width:30px"></span></div>
+        <div style="display:flex;gap:5px;padding:0 9px 6px"><span style="font-size:9.5px;font-weight:700;background:#138a52;color:#fff;border-radius:7px;padding:3px 7px">Ouvertes maintenant</span><span style="font-size:9.5px;font-weight:600;background:#fff;border-radius:7px;padding:3px 7px">Près de mon arrêt</span></div>
+        <svg width="186" height="170" viewBox="0 0 186 170" aria-hidden="true" style="display:block"><rect width="186" height="170" fill="#e6ebe8"/><path d="M0 92 C50 80, 120 104, 186 86 L186 112 C120 130, 50 108, 0 118z" fill="#b8d2df"/><path d="M14 40 H172 M20 150 H166 M46 0 V170 M140 0 V170" stroke="#fff" stroke-width="6"/><path d="M90 0 C92 50, 96 110, 100 170" fill="none" stroke="#e2121a" stroke-width="3"/><circle cx="91" cy="36" r="4" fill="#fff" stroke="#e2121a" stroke-width="2"/><circle cx="96" cy="128" r="4" fill="#fff" stroke="#e2121a" stroke-width="2"/><g transform="translate(66 58)"><path d="M0-13 C6-13 9.5-8.5 9.5-4.5 C9.5 2 0 9.5 0 9.5 C0 9.5-9.5 2-9.5-4.5 C-9.5-8.5-6-13 0-13z" fill="#138a52" stroke="#fff" stroke-width="1.5"/><path d="m-3.8-4.6 2.6 2.6 4.8-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(122 46)"><path d="M0-13 C6-13 9.5-8.5 9.5-4.5 C9.5 2 0 9.5 0 9.5 C0 9.5-9.5 2-9.5-4.5 C-9.5-8.5-6-13 0-13z" fill="#138a52" stroke="#fff" stroke-width="1.5"/><path d="m-3.8-4.6 2.6 2.6 4.8-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(58 150)"><path d="M0-13 C6-13 9.5-8.5 9.5-4.5 C9.5 2 0 9.5 0 9.5 C0 9.5-9.5 2-9.5-4.5 C-9.5-8.5-6-13 0-13z" fill="#138a52" stroke="#fff" stroke-width="1.5"/><path d="m-3.8-4.6 2.6 2.6 4.8-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="104" cy="70" r="5" fill="#0a84ff" stroke="#fff" stroke-width="2"/></svg>
+        <div style="padding:8px 9px;display:flex;flex-direction:column;gap:6px">
+          <div class="card"><div class="row"><span class="sp-ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Boulangerie partenaire</b><small>Ouverte · ferme à 19 h 30 · 150 m</small></div></div></div>
+          <div class="card"><div class="row"><span class="sp-ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Médiathèque</b><small>Ouverte · ferme à 18 h · 300 m</small></div></div></div>
+        </div>
+      </div>
+      <div class="mi"></div><div class="mhome dark"></div>
+    </div></div></div>
+
+    <!-- ===== Système ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:#48525c">⚙</span>Ce qui se passe</div><small>Côté système et proches</small></div>
+    <div class="cell"><div class="sys"><span><b>Seuls les lieux ouverts maintenant</b> sont proposés, à moins de 3 min à pied d'un arrêt, avec le trajet.</span></div></div>
+    <div class="cell"><div class="sys"><span><b>Sticker réfléchissant</b> pour la nuit, à hauteur des yeux près de la porte, avec les horaires d'accueil.</span></div></div>
+    <div class="cell"><div class="sys safe"><span><b>Le scan du QR code</b> identifie le lieu et prévient les proches :</span><div class="mini-notif"><div class="nh"><span>TAO</span><span>maintenant</span></div><b>Léa est à l'abri</b>À la Safe Place « Pharmacie partenaire », près de Tourelles-Dauphine. Itinéraire →</div></div></div>
+    <div class="cell"><div class="sys"><span><b>Temps réel</b> : prochains passages et arrivée de Sam. L'app prévient Léa au moment de sortir.</span></div></div>
+    <div class="cell"><div class="sys"><span><b>Partage arrêté.</b> L'avis de Léa remonte à TAO : visites de contrôle, et retrait du sticker si un lieu ne joue plus le jeu.</span></div></div>
+    <div class="cell sep"><div class="sys"><span><b>Suggestion seulement le soir</b>, quand l'attente dépasse un seuil (ici 15 min) et qu'une Safe Place est ouverte tout près. L'Indien est l'un des arrêts les plus cités dans le questionnaire.</span></div></div>
+    <div class="cell"><div class="sys"><span><b>Carte filtrée sur l'heure</b> : un lieu disparaît dès qu'il ferme, pour n'envoyer personne vers une porte close. Le QR code du sticker ouvre aussi cette carte.</span></div></div>
+
+    <!-- ===== Commerçant ===== -->
+    <div class="lane-l"><div class="who"><span class="ic" style="background:var(--safe)"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Safe Place</div><small>Le commerçant partenaire : il met à l'abri et alerte, il n'intervient pas</small></div>
+    <div class="cell"><div class="empty">Le commerçant n'est pas prévenu à l'avance : on entre sans prévenir, comme n'importe quel client.</div></div>
+    <div class="cell"><div class="scene">
+      <svg width="214" height="160" viewBox="0 0 214 160" aria-hidden="true"><rect width="214" height="160" fill="#10151c"/><rect x="0" y="128" width="214" height="32" fill="#1a2028"/><rect x="18" y="22" width="178" height="106" rx="3" fill="#2b3442"/><rect x="26" y="34" width="104" height="86" rx="2" fill="#f6d9a0" opacity=".9"/><rect x="26" y="34" width="104" height="86" rx="2" fill="url(#g1)"/><rect x="140" y="34" width="48" height="94" rx="2" fill="#f6d9a0" opacity=".75"/><rect x="18" y="12" width="178" height="14" rx="2" fill="#138a52"/><text x="107" y="22.5" font-size="8" font-weight="800" fill="#fff" text-anchor="middle" letter-spacing="1">PHARMACIE</text><g transform="translate(108 58)"><rect x="0" y="0" width="22" height="28" rx="3" fill="#13161a" stroke="#eef3f6" stroke-width="1.6"/><text x="11" y="12" font-size="5.6" font-weight="800" fill="#fff" text-anchor="middle">SAFE</text><text x="11" y="19" font-size="5.6" font-weight="800" fill="#fff" text-anchor="middle">PLACE</text><rect x="-3" y="-3" width="28" height="34" rx="5" fill="none" stroke="#dfeaff" stroke-opacity=".45" stroke-width="2"/></g><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg>
+      <div class="cap"><b>Vitrine de nuit.</b> Sticker réfléchissant collé à hauteur des yeux, à côté de la porte.</div>
+    </div></div>
+    <div class="cell" style="align-content:center;gap:10px">
+      <div class="bubble"><small>Le pharmacien</small>Bonsoir, installez-vous. Vous pouvez attendre ici le temps qu'il faut.</div>
+      <div class="tent" style="width:214px;padding:10px 12px;gap:5px"><div class="tl"><svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="#138a52"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><b style="font-size:17px">TAO SAFE PLACE</b></div><p style="font-size:10.5px">Ici, vous pouvez attendre votre bus ou votre tram en sécurité, sans achat ni question.</p></div>
+    </div>
+    <div class="cell"><div class="memo">
+      <h6>Aide-mémoire du partenaire</h6>
+      <div><span class="y">✓</span>Proposer une chaise et de recharger le téléphone</div>
+      <div><span class="y">✓</span>Appeler un proche, un taxi ou les secours si elle le demande</div>
+      <div><span class="y">✓</span>Ligne directe du poste central TAO si la situation l'exige</div>
+      <div class="sep2"></div>
+      <div><span class="n">✕</span>Ne jamais intervenir physiquement</div>
+      <div><span class="n">✕</span>Ne pas poser de questions ni demander d'achat</div>
+    </div></div>
+    <div class="cell" style="align-content:center;gap:10px">
+      <div class="bubble"><small>Le pharmacien</small>Bonne soirée, et bon retour !</div>
+      <div class="empty" style="max-width:214px">Rien à saisir ni à signer. Le commerçant ne voit pas l'avis de Léa.</div>
+    </div>
+    <div class="cell sep"><div class="scene">
+      <svg width="214" height="160" viewBox="0 0 214 160" aria-hidden="true"><rect width="214" height="160" fill="#0d1218"/><rect x="0" y="130" width="214" height="30" fill="#1a2028"/><rect x="10" y="14" width="194" height="20" rx="2" fill="#2f3a48"/><rect x="10" y="34" width="194" height="6" fill="#eaf2ff" opacity=".8"/><rect x="26" y="40" width="10" height="90" fill="#2f3a48"/><rect x="178" y="40" width="10" height="90" fill="#2f3a48"/><rect x="120" y="60" width="66" height="70" rx="2" fill="#2b3442"/><rect x="126" y="68" width="54" height="56" fill="#f2e3b8" opacity=".85"/><rect x="58" y="88" width="16" height="42" rx="3" fill="#3c4757"/><rect x="61" y="92" width="10" height="10" rx="1" fill="#9fe3c1"/><g transform="translate(150 78)"><rect x="0" y="0" width="22" height="28" rx="3" fill="#13161a" stroke="#eef3f6" stroke-width="1.6"/><text x="11" y="12" font-size="5.6" font-weight="800" fill="#fff" text-anchor="middle">SAFE</text><text x="11" y="19" font-size="5.6" font-weight="800" fill="#fff" text-anchor="middle">PLACE</text><text x="11" y="25" font-size="3.6" font-weight="700" fill="#9fe3c1" text-anchor="middle">24 h/24</text><rect x="-3" y="-3" width="28" height="34" rx="5" fill="none" stroke="#dfeaff" stroke-opacity=".45" stroke-width="2"/></g></svg>
+      <div class="cap"><b>Lieu ouvert tard, près du campus.</b> Hôtels, stations-service et pharmacies de garde couvrent la soirée, quand les commerces sont fermés.</div>
+    </div></div>
+    <div class="cell"><div class="memo" style="background:#fff;border-color:var(--line)">
+      <h6 style="color:var(--safe)">Fiche du lieu dans l'app</h6>
+      <div>Horaires d'accueil, mis à jour par le partenaire</div>
+      <div>Distance à l'arrêt le plus proche</div>
+      <div>Services : recharge, appel d'un proche ou d'un taxi</div>
+      <div class="sep2"></div>
+      <div style="color:var(--ink-2)">Visibilité aussi dans la communication du réseau.</div>
+    </div></div>
+  </section>
+
+  <section aria-labelledby="h-kit">
+    <h2 class="sec" id="h-kit">Le kit du label<small>Ce que TAO remet au partenaire</small></h2>
+    <div class="kit">
+      <div class="kcard">
+        <h3>Sticker de vitrine · jour</h3>
+        <p class="sub">Lisible depuis le trottoir, à hauteur des yeux, près de la porte.</p>
+        <div class="stage day"><div class="sticker dayv">
+          <div class="st-logo">LOGO TAO</div>
+          <div class="st-title">SAFE<br>PLACE</div>
+          <div class="st-sub">Entrez attendre votre bus ou votre tram en sécurité. Sans achat, sans question.</div>
+          <div class="st-hours">Accueil lun–sam · 8 h 30 – 23 h</div>
+          <div class="st-qr"><svg class="qr" width="56" height="56" data-seed="7"></svg><span>Scannez pour voir les Safe Places ouvertes près de vous</span></div>
+        </div></div>
+      </div>
+      <div class="kcard">
+        <h3>Sticker de vitrine · nuit</h3>
+        <p class="sub">Version réfléchissante : elle renvoie la lumière des phares et de l'éclairage public.</p>
+        <div class="stage night"><div class="sticker nightv">
+          <div class="st-logo">LOGO TAO</div>
+          <div class="st-title">SAFE<br>PLACE</div>
+          <div class="st-sub">Entrez attendre votre bus ou votre tram en sécurité. Sans achat, sans question.</div>
+          <div class="st-hours">Accueil tous les jours · 24 h/24</div>
+          <div class="st-qr"><svg class="qr" width="56" height="56" data-seed="11"></svg><span>Scannez pour voir les Safe Places ouvertes près de vous</span></div>
+        </div></div>
+      </div>
+      <div class="kcard">
+        <h3>Affichette de caisse</h3>
+        <p class="sub">Pour les clients et pour le personnel, au comptoir.</p>
+        <div class="stage day" style="padding:22px 0"><div class="tent">
+          <div class="tl"><svg width="24" height="24" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2 13.6 3.4v4.2c0 3.4-2.4 6-5.6 7.2C4.8 13.6 2.4 11 2.4 7.6V3.4z" fill="#138a52"/><path d="m5.4 8 1.9 1.9L10.8 6.3" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><b>TAO SAFE PLACE</b></div>
+          <p>Vous pouvez attendre ici votre bus ou votre tram, ou un proche qui vient vous chercher. Sans achat, sans question.</p>
+          <ul><li>Nous pouvons appeler un proche, un taxi ou les secours.</li><li>Nous pouvons recharger votre téléphone.</li></ul>
+          <div class="staff"><b>Personnel :</b> ligne directe poste central TAO · [numéro à définir]. Nous mettons à l'abri, nous n'intervenons pas.</div>
+        </div></div>
+      </div>
+      <div class="kcard">
+        <h3>Charte du partenaire</h3>
+        <div class="charter">
+          <div><h4><span style="color:var(--safe)">✓</span>Le partenaire s'engage à</h4><ul><li>Accueillir toute personne qui se sent en danger ou mal à l'aise, sans questions ni achat</li><li>La laisser attendre jusqu'à son bus, son tram ou l'arrivée d'un proche</li><li>Proposer un coup de main : appel, taxi, secours, recharge</li></ul></div>
+          <div><h4><span style="color:#c4291f">✕</span>Il ne fait jamais</h4><ul><li>Intervenir physiquement : il n'est pas agent de sécurité</li><li>Demander une justification</li><li>Il n'a aucune obligation d'intervention</li></ul></div>
+          <div><h4><span style="color:var(--accent)">★</span>TAO lui apporte</h4><ul><li>Le sticker et l'affichette</li><li>Une formation d'une heure ou une vidéo</li><li>Une ligne directe vers le poste central</li><li>De la visibilité dans l'app et la communication</li><li>Adhésion gratuite ; prix des « Safe Places de l'année »</li></ul></div>
+        </div>
+        <div class="types">
+          <div class="hours-axis"><span><b style="color:var(--ink)">Qui peut devenir Safe Place</b></span><div><span>6 h</span><span>12 h</span><span>18 h</span><span>24 h</span></div></div>
+          <div class="trow"><span><b>Commerces près d'un arrêt</b><small>Boulangeries, pharmacies, tabacs, supérettes</small></span><div class="hours"><i style="left:8%;width:58%"></i></div></div>
+          <div class="trow"><span><b>Lieux ouverts tard</b><small>Hôtels, stations-service, pharmacies de garde</small></span><div class="hours"><i style="left:0;width:100%;opacity:.45"></i><i style="left:66%;width:34%"></i></div></div>
+          <div class="trow"><span><b>Lieux publics</b><small>Agences TAO, médiathèques, mairies de quartier</small></span><div class="hours"><i style="left:16%;width:38%"></i></div></div>
+          <div class="fine" style="font-size:11px;margin-top:2px">Horaires indicatifs. Le soir, seuls les lieux ouverts tard assurent l'accueil : c'est là que le recrutement compte le plus.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-pilot">
+    <h2 class="sec" id="h-pilot">Pilote : où recruter les premières Safe Places<small>Barres : signalements liés à la sûreté ou aux incivilités à moins de 250 m de l'arrêt (oct. 2025 – oct. 2026). Pastilles : nombre de répondantes citant l'arrêt comme lieu d'insécurité (26 sur 51 ont cité un lieu).</small></h2>
+    <div class="pilot">
+      <div class="pcard"><h3><span class="badge" style="background:var(--tram-a)">A</span>Ligne A · Jules Verne → Hôpital de La Source</h3><p class="sub" id="sub-a"></p>
+        <div class="legend"><span><i style="background:#3d4f5c"></i>en journée</span><span><i style="background:#13161a"></i>le soir (19 h – 5 h)</span><span><i style="background:rgba(19,138,82,.25)"></i>pôles pilotes proposés</span><span><i style="background:var(--accent);border-radius:6px;width:20px"></i>cité dans le questionnaire</span></div>
+        <div class="strip" id="strip-a" style="--lc:var(--tram-a)"></div></div>
+      <div class="pcard"><h3><span class="badge" style="background:var(--tram-b)">B</span>Ligne B · Georges Pompidou → Clos du Hameau</h3><p class="sub" id="sub-b"></p>
+        <div class="legend"><span><i style="background:#3d4f5c"></i>en journée</span><span><i style="background:#13161a"></i>le soir (19 h – 5 h)</span><span><i style="background:var(--accent);border-radius:6px;width:20px"></i>cité dans le questionnaire</span></div>
+        <div class="strip" id="strip-b" style="--lc:var(--tram-b)"></div></div>
+      <div class="reco">
+        <div class="tile go"><h4>Proposition de pilote : deux pôles sur le tram A</h4><p><b style="color:var(--ink)">1. Centre-ville, de Gare d'Orléans à Zénith</b> : <b style="color:var(--ink)" id="seg-share"></b> des signalements sûreté et incivilités de la ligne, et <b style="color:var(--ink)" id="seg-cite"></b> citations dans le questionnaire (Gare d'Orléans et De Gaulle en tête). Le scénario de Léa s'y déroule.</p><p style="margin-top:8px"><b style="color:var(--ink)">2. Campus de La Source, d'Université à L'Indien</b> : <b style="color:var(--ink)" id="camp-cite"></b> citations dans le questionnaire, contre <b style="color:var(--ink)" id="camp-sig"></b> signalements. Un besoin que les signalements captent mal, surtout le soir en sortant de la fac : à couvrir avec des lieux ouverts tard et des lieux publics.</p></div>
+        <div class="tile"><div class="v" id="v-a"></div><div class="l">signalements sûreté ou incivilités près de la ligne A, <span id="v-a-ev"></span></div></div>
+        <div class="tile"><div class="v" id="v-b"></div><div class="l">près de la ligne B, <span id="v-b-ev"></span>. Droits de l'Homme (6 signalements) et l'est de la ligne (Léon Blum, Saint-Jean-de-Braye, cités dans le questionnaire) sont à ajouter si le pilote s'étend.</div></div>
+        <div class="tile"><h4>À croiser avec le terrain</h4><p>Les effectifs sont faibles : quelques signalements par arrêt, et un questionnaire de 51 réponses recueillies en une journée, donc non représentatif. Hors tram, les répondantes citent aussi l'Argonne (2), la rue des Carmes et les arrêts du centre-ville. De Gaulle, desservi par les deux lignes, est compté sur chacune.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-voice">
+    <h2 class="sec" id="h-voice">Ce que disent les usagères<small>Questionnaire « Expérience des femmes dans les transports en commun », 51 réponses dont 49 femmes</small></h2>
+    <div class="voice">
+      <div class="tile"><div class="v">43 %</div><div class="l">citent les Safe Places parmi les solutions les plus utiles ; autant pour la collaboration avec les commerçants</div></div>
+      <div class="tile"><div class="v">71 %</div><div class="l">se sentent le moins en sécurité le soir ou la nuit ; 43 % en attendant à un arrêt</div></div>
+      <div class="tile"><div class="v">39 %</div><div class="l">ont déjà dû attendre trop longtemps dans un lieu peu rassurant : le cas d'usage de l'étape 6</div></div>
+      <div class="tile"><div class="v">71 %</div><div class="l">ne savaient pas que des boutons SOS et des arrêts à la demande existent déjà le soir : le sticker et l'app doivent aussi informer</div></div>
+      <div class="tile"><div class="v">76 %</div><div class="l">jugent les dispositifs de sécurité actuels insuffisants ; 43 % citent un bouton d'alerte sonore</div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-q">
+    <h2 class="sec" id="h-q">Points à trancher</h2>
+    <div class="qgrid">
+      <div class="qc"><span class="tag q">À trancher</span><b>Après un signalement simple ?</b>La note propose une Safe Place dès le premier signalement. Ici, seulement après un SOS, en prévention ou sur demande. À confirmer.</div>
+      <div class="qc"><span class="tag q">À trancher</span><b>Scanner un QR en pleine panique</b>Le scan prévient les proches, mais demande de sortir le téléphone. Alternatives : détection automatique à l'entrée, bouton « Je suis à l'abri », ou confirmation par le commerçant.</div>
+      <div class="qc"><span class="tag q">À trancher</span><b>Qui tient les horaires à jour ?</b>La carte n'affiche que les lieux ouverts. Il faut un moyen simple pour le partenaire de signaler une fermeture exceptionnelle : espace partenaire, SMS, appel à TAO ?</div>
+      <div class="qc"><span class="tag q">À trancher</span><b>La ligne directe</b>Un numéro dédié vers le poste central suffit-il, ou faut-il une petite app partenaire (alerte en un geste, sans parler devant la personne concernée) ?</div>
+      <div class="qc"><span class="tag q">À trancher</span><b>Seuil de prévention</b>À partir de quelle heure et de combien de minutes d'attente l'app suggère-t-elle une Safe Place ? Ici : après 21 h et plus de 15 min.</div>
+      <div class="qc"><span class="tag q">À trancher</span><b>« Safe Place » ou « Lieu sûr » ?</b>La note emploie les deux. Le nom du sticker, de la carte et des notifications doit être unique et compris de tous.</div>
+      <div class="qc"><span class="tag doc">Note</span><b>Qualité et responsabilité</b>Visites de contrôle et avis des usagers, retrait du sticker si besoin. Une charte claire : le partenaire n'a aucune obligation d'intervention.</div>
+      <div class="qc"><span class="tag doc">Note</span><b>Démarrage</b>Pilote sur une ou deux lignes avant d'élargir. Signalements et questionnaire orientent vers le tram A : centre-ville et campus de La Source.</div>
+    </div>
+  </section>
+
+  <p class="foot">Maquette de travail : lieux partenaires, personnes, horaires et seuils sont fictifs. Arrêts, lignes et comptes de signalements issus du GTFS TAO et de l'export « Données 1 an SOS » nettoyé (298 signalements, dont 102 liés à la sûreté ou aux incivilités), et du questionnaire usagères (51 réponses, 12 octobre 2026).</p>
+</main>
+
+<script type="application/json" id="pilot">{"A": [["Jules Verne", 0, 0, 0, 0], ["Lamballe", 0, 0, 0, 0], ["Bustière", 0, 0, 4, 0], ["Gare des Aubrais", 1, 0, 1, 0], ["Libération-Interives", 0, 0, 1, 0], ["Coligny", 2, 1, 3, 0], ["Louis Braille", 1, 0, 4, 0], ["Gare d'Orléans", 5, 0, 17, 6], ["République", 3, 1, 3, 0], ["De Gaulle", 5, 1, 9, 4], ["Royale-Châtelet", 1, 0, 2, 0], ["Tourelles-Dauphine", 2, 0, 2, 0], ["Saint-Marceau", 4, 1, 5, 0], ["Mouillère", 3, 0, 3, 0], ["CO'Met", 0, 0, 2, 0], ["Zénith", 4, 2, 5, 0], ["Victor Hugo", 1, 1, 2, 1], ["Larry - Saint Fiacre", 2, 0, 2, 0], ["Les Aulnaies", 0, 0, 1, 0], ["Lorette", 0, 0, 0, 0], ["Université", 1, 1, 2, 2], ["Parc Floral", 2, 1, 2, 2], ["L'Indien", 0, 0, 1, 4], ["Chèques Postaux - Michel Ricoud", 1, 1, 2, 0], ["Bolière", 0, 0, 1, 0], ["Hôpital-Accueil", 0, 0, 0, 0], ["Hôpital de La Source", 0, 0, 0, 0]], "B": [["Georges Pompidou", 0, 0, 0, 0], ["Trois Fontaines", 2, 0, 4, 0], ["Martin Luther King", 0, 0, 0, 0], ["Rol Tanguy", 1, 0, 1, 0], ["Pont de L'Europe", 0, 0, 1, 0], ["Porte Dunoise", 1, 1, 1, 0], ["Beaumonts", 2, 0, 6, 0], ["Madeleine", 2, 0, 6, 0], ["Croix Morin", 0, 0, 0, 0], ["De Gaulle", 5, 1, 9, 4], ["Jeanne d'Arc", 0, 0, 0, 0], ["Cathédrale", 1, 0, 1, 0], ["Halmagrand", 0, 0, 2, 0], ["Eugène Vignat", 3, 0, 3, 0], ["Guy-Marie Riobé", 0, 0, 3, 0], ["Droits de l'Homme", 6, 0, 9, 0], ["Mozart", 0, 0, 5, 0], ["Grand Villiers", 0, 0, 1, 0], ["Ambert", 0, 0, 3, 0], ["Gaudier-Brzeska", 0, 0, 0, 0], ["Pont Bordeau", 1, 0, 1, 0], ["Verville", 1, 0, 1, 0], ["Clos de l'Arche", 0, 0, 1, 0], ["Léon Blum", 1, 0, 4, 1], ["Clos du Hameau", 1, 0, 1, 0]]}</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById("pilot").textContent);
+  const SEG = ["Gare d'Orléans", "République", "De Gaulle", "Royale-Châtelet", "Tourelles-Dauphine", "Saint-Marceau", "Mouillère", "CO'Met", "Zénith"];
+  const CAMP = ["Université", "Parc Floral", "L'Indien"];
+  const max = Math.max(...D.A.map(r => r[1]), ...D.B.map(r => r[1]));
+  function strip(id, rows, seg) {
+    const el = document.getElementById(id);
+    rows.forEach(([name, n, ev, _all, cq]) => {
+      if (seg && name === SEG[0]) { const t = document.createElement("div"); t.className = "pole"; t.textContent = "Pôle 1 · centre-ville"; el.append(t); }
+      if (seg && name === CAMP[0]) { const t = document.createElement("div"); t.className = "pole"; t.textContent = "Pôle 2 · campus de La Source"; el.append(t); }
+      const row = document.createElement("div");
+      row.className = "srow" + (n >= 3 || cq >= 2 ? " hi" : "") + (seg && (seg.includes(name) || CAMP.includes(name)) ? " pseg" : "");
+      const lnc = document.createElement("span"); lnc.className = "lnc";
+      const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name;
+      const br = document.createElement("span"); br.className = "br";
+      const day = n - ev;
+      if (day) { const i = document.createElement("i"); i.style.width = (100 * day / max) + "%"; i.style.background = "#3d4f5c"; br.append(i); }
+      if (ev) { const i = document.createElement("i"); i.style.width = (100 * ev / max) + "%"; i.style.background = "#13161a"; br.append(i); }
+      const v = document.createElement("span"); v.className = "v";
+      if (n) { v.textContent = n; if (ev) { const s = document.createElement("small"); s.textContent = " (" + ev + ")"; v.append(s); } }
+      const q = document.createElement("span"); if (cq) { q.className = "cq"; q.textContent = cq; q.title = cq + " répondante(s) citent cet arrêt"; }
+      row.append(lnc, nm, br, v, q); el.append(row);
+    });
+  }
+  strip("strip-a", D.A, SEG);
+  strip("strip-b", D.B, null);
+  const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
+  const a = sum(D.A, 1), aev = sum(D.A, 2), b = sum(D.B, 1), bev = sum(D.B, 2);
+  const seg = D.A.filter(r => SEG.includes(r[0])).reduce((x, r) => x + r[1], 0);
+  document.getElementById("v-a").textContent = a;
+  document.getElementById("v-a-ev").textContent = "dont " + aev + " le soir";
+  document.getElementById("v-b").textContent = b;
+  document.getElementById("v-b-ev").textContent = "dont " + bev + " le soir";
+  document.getElementById("seg-share").textContent = seg + " sur " + a + " (" + Math.round(100 * seg / a) + " %)";
+  const pick = (names, k) => D.A.filter(r => names.includes(r[0])).reduce((x, r) => x + r[k], 0);
+  document.getElementById("seg-cite").textContent = pick(SEG, 4);
+  document.getElementById("camp-cite").textContent = pick(CAMP, 4);
+  const cs = pick(CAMP, 1), ce = pick(CAMP, 2);
+  document.getElementById("camp-sig").textContent = cs + " (dont " + ce + " le soir)";
+  document.getElementById("sub-a").textContent = "Entre parenthèses : signalements du soir. En gras : 3 signalements ou plus, ou 2 citations ou plus.";
+  document.getElementById("sub-b").textContent = "Entre parenthèses : signalements du soir. En gras : 3 signalements ou plus, ou 2 citations ou plus.";
+  // Motif décoratif façon QR code (non scannable), déterministe
+  document.querySelectorAll("svg.qr").forEach(svg => {
+    let s = +svg.dataset.seed || 1; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    const N = 21, c = 48 / N; const ns = "http://www.w3.org/2000/svg";
+    svg.setAttribute("viewBox", "0 0 48 48");
+    const finder = (x, y) => (x < 7 && y < 7) || (x >= N - 7 && y < 7) || (x < 7 && y >= N - 7);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      let on;
+      if (finder(x, y)) { const fx = x < 7 ? x : x - (N - 7), fy = y < 7 ? y : y - (N - 7); on = fx === 0 || fx === 6 || fy === 0 || fy === 6 || (fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4); }
+      else on = rnd() > 0.52;
+      if (on) { const r = document.createElementNS(ns, "rect"); r.setAttribute("x", x * c); r.setAttribute("y", y * c); r.setAttribute("width", c + .05); r.setAttribute("height", c + .05); r.setAttribute("fill", "#13161a"); svg.append(r); }
+    }
+  });
+})();
+</script>
+</body>
+</html>

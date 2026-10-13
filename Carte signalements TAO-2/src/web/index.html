@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Signalements réseau TAO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Overpass:wght@400;500;600;700;800&display=swap">
+<!-- build:vendor-css -->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-text">
+      <p class="eyebrow">Orléans Métropole · Réseau TAO</p>
+      <h1>Signalements sur le réseau TAO</h1>
+      <p class="lede" id="lede"></p>
+    </div>
+    <div class="mast-meta">
+      <span><strong>Source</strong> · export « Données 1 an SOS », anonymisé</span>
+      <span id="meta-clean"></span>
+    </div>
+  </header>
+
+  <section class="filters" aria-label="Filtres">
+    <div class="f-row">
+      <div class="period">
+        <span class="f-label">Période</span>
+        <div class="line-diagram" id="ld">
+          <div class="ld-track"></div>
+          <div class="ld-sel" id="ld-sel"></div>
+          <input type="range" id="m0" min="0" max="12" step="1" value="0" aria-label="Début de période">
+          <input type="range" id="m1" min="0" max="12" step="1" value="12" aria-label="Fin de période">
+        </div>
+        <output class="period-out" id="period-out" for="m0 m1"></output>
+      </div>
+      <div class="presets" id="presets" aria-label="Périodes prédéfinies"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group" id="g-fam"><span class="f-label">Famille</span></div>
+      <div class="f-group" id="g-mode"><span class="f-label">Mode</span></div>
+      <div class="f-group" id="g-band"><span class="f-label">Créneau</span></div>
+    </div>
+    <div class="f-row">
+      <div class="f-group"><label class="f-label" for="sel-com">Commune</label><select class="select" id="sel-com"></select></div>
+      <div class="f-group"><label class="f-label" for="sel-mot">Motif</label><select class="select" id="sel-mot"></select></div>
+      <button class="btn-ghost" id="reset" type="button">Réinitialiser les filtres</button>
+      <span class="f-hint">Un clic isole une catégorie, les clics suivants en ajoutent.</span>
+      <span class="f-count" id="f-count"></span>
+    </div>
+  </section>
+
+  <section class="kpis" aria-label="Chiffres clés" id="kpis"></section>
+
+  <div class="main">
+    <section class="card" aria-labelledby="h-map">
+      <div class="card-head">
+        <div>
+          <h2 id="h-map">Carte des signalements</h2>
+          <p class="note">Cliquez sur un symbole pour le détail. Les grappes indiquent le nombre de signalements et leur répartition par famille.</p>
+        </div>
+        <div class="tools">
+          <div class="seg" role="group" aria-label="Affichage">
+            <button type="button" data-view="points" aria-pressed="true">Points</button>
+            <button type="button" data-view="heat" aria-pressed="false">Chaleur</button>
+            <button type="button" data-view="both" aria-pressed="false">Les deux</button>
+          </div>
+          <label class="tog"><input type="checkbox" id="t-tram" checked> Tram</label>
+          <label class="tog"><input type="checkbox" id="t-bus"> Lignes de bus</label>
+          <label class="tog"><input type="checkbox" id="t-com" checked> Communes</label>
+          <button class="btn-ghost" id="recenter" type="button">Recentrer</button>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <div id="map" role="region" aria-label="Carte interactive des signalements"></div>
+        <div class="legend" id="legend"></div>
+        <div class="map-empty" id="map-empty" hidden><div>Aucun signalement ne correspond aux filtres. <button class="link-btn" type="button" data-reset>Réinitialiser</button></div></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-mot">
+      <div class="card-head">
+        <div>
+          <h2 id="h-mot">Motifs</h2>
+          <p class="note">Par famille, puis par motif. Cliquez sur un motif pour filtrer.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="blist" id="motifs"></div>
+        <p class="panel-note">Quatre signalements portent plusieurs motifs : ils comptent dans chacun, la somme dépasse donc le total.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="charts">
+    <section class="card span2" aria-labelledby="h-month">
+      <div class="card-head">
+        <div><h2 id="h-month">Signalements par mois</h2><p class="note">Couleur : famille principale. Cliquez sur un mois pour le sélectionner.</p></div>
+        <button class="link-btn" type="button" data-table="month" aria-pressed="false">Voir le tableau</button>
+      </div>
+      <div class="card-body">
+        <div class="legend-row" id="month-legend"></div>
+        <div class="chart" id="c-month"></div>
+        <p class="foot-note" id="month-note"></p>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-hour">
+      <div class="card-head">
+        <div><h2 id="h-hour">Heure de la journée</h2><p class="note">Heure du signalement, par tranche d'une heure.</p></div>
+        <button class="link-btn" type="button" data-table="hour" aria-pressed="false">Voir le tableau</button>
+      </div>
+      <div class="card-body"><div class="chart" id="c-hour"></div></div>
+    </section>
+    <section class="card" aria-labelledby="h-stops">
+      <div class="card-head"><div><h2 id="h-stops">Arrêts les plus concernés</h2><p class="note">Signalements à moins de 250 m de l'arrêt. Cliquez pour zoomer.</p></div></div>
+      <div class="card-body"><div class="blist" id="c-stops"></div></div>
+    </section>
+    <section class="card" aria-labelledby="h-com">
+      <div class="card-head"><div><h2 id="h-com">Communes</h2><p class="note">Cliquez sur une commune pour filtrer.</p></div></div>
+      <div class="card-body"><div class="blist" id="c-com"></div></div>
+    </section>
+    <section class="card" aria-labelledby="h-mode">
+      <div class="card-head"><div><h2 id="h-mode">Mode de transport</h2><p class="note">Couleur : famille principale.</p></div></div>
+      <div class="card-body"><div class="blist" id="c-mode"></div></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-list">
+    <div class="card-head">
+      <div><h2 id="h-list">Liste des signalements</h2><p class="note" id="list-note"></p></div>
+    </div>
+    <div class="table-wrap scroll-x">
+      <table class="records">
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-method">
+    <div class="card-head"><h2 id="h-method">Méthode et sources</h2></div>
+    <div class="card-body method" id="method"></div>
+  </section>
+</div>
+<div class="tt" id="tt" role="tooltip" hidden></div>
+
+<script type="application/json" id="sig-data">/*__DATA__*/</script>
+<script type="application/json" id="sig-base">/*__BASEMAP__*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
